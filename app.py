@@ -26,7 +26,8 @@ class mood(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     date = db.Column(db.Date, nullable=False)
     description = db.Column(db.String(200), nullable=False)
-    daily_mood = db.Column(db.Integer, nullable=False)
+    intensity = db.Column(db.Integer, nullable=False)
+    selected_mood = db.Column(db.String(20), nullable=False)
 #create a function to return a string when we add something
     def __repr__(self):
         return '<username %r>' % self.user_id
@@ -141,6 +142,35 @@ def record_moment():
     # Render the record moment page if it's a GET request
     return render_template('record_moment.html')
 
+# Define the route to  mood
+@app.route('/mood', methods=['POST'])
+@login_required  # Ensure the user is logged in
+def mood():
+    if request.method == 'POST':
+        # Retrieve the mood and intensity values from the form submission
+        selected_mood = request.form['mood']
+        intensity = int(request.form['intensity'])
+
+        # Perform any necessary processing or validation
+
+        # Create a new mood entry in the database
+        new_entry = mood(user_id=session['user_id'], mood=selected_mood, intensity=intensity, date=datetime.now())
+        db.session.add(new_entry)
+        db.session.commit()
+
+        # Redirect to the home page or another appropriate page
+        return redirect(url_for('home'))
+    else:
+        # Handle GET requests to this route if needed
+        # ...
+
+
+if __name__ == '__main__':
+    try:
+        app.run()
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+# ...
 
 
 if __name__ == '__main__':
