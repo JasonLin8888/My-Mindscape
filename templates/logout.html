@@ -1,11 +1,13 @@
 <!-- logout.html -->
 
-{% extends 'layout.html' %}
+{% extends "layout.html" %}
 
-{% block title %}Logout{% endblock %}
+{% block title %}
+    Logout
+{% endblock %}
 
 {% block main %}
-    <h2>You have been successfully logged out.</h2>
-    <p>Thank you for using our application.</p>
-    <p><a href="/login">Login again</a></p>
+    <h2>You have been successfully logged out!</h2>
+    <h3>Thank you for using our application!</h3>
+    <p><a href="/login">Log in again</a></p>
 {% endblock %}

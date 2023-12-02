@@ -1,23 +1,25 @@
 <!-- login.html -->
 
-{% extends 'layout.html' %}
+{% extends "layout.html" %}
 
-{% block title %}Login - College Experience Tracker{% endblock %}
+{% block title %}
+    Login
+{% endblock %}
 
-{% block content %}
+{% block main %}
 
-<!-- Login Form -->
-<form action="/login" method="post">
-    <!-- Input for username -->
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required>
-
-    <!-- Input for password -->
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
-
-    <!-- Button to submit the form -->
-    <button type="submit">Login</button>
-</form>
+    <!-- Login Form -->
+    <form action="/login" method="post">
+        <!-- Input for username -->
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Username" type="text" required>
+        </div>
+        <!-- Input for password -->
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" id="password" name="password" placeholder="Password" type="password" required>
+        </div>
+        <!-- Button to submit the form -->
+        <button class="btn btn-primary" type="submit">Log In</button>
+    </form>
 
 {% endblock %}
