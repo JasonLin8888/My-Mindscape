@@ -1,0 +1,25 @@
+<!-- layout.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Add a title tag to be dynamically set by child pages -->
+    <title>{% block title %}Default Title{% endblock %}</title>
+    <!-- Include external stylesheet for styling -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Common navigation or header content can go here -->
+
+<!-- Content block that will be overridden by child pages -->
+<div id="content">
+    {% block content %}{% endblock %}
+</div>
+
+<!-- Common footer or scripts can go here -->
+
+</body>
+</html>

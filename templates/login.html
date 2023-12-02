@@ -1,0 +1,23 @@
+<!-- login.html -->
+
+{% extends 'layout.html' %}
+
+{% block title %}Login - College Experience Tracker{% endblock %}
+
+{% block content %}
+
+<!-- Login Form -->
+<form action="/login" method="post">
+    <!-- Input for username -->
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+
+    <!-- Input for password -->
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+
+    <!-- Button to submit the form -->
+    <button type="submit">Login</button>
+</form>
+
+{% endblock %}

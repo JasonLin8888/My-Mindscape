@@ -1,0 +1,35 @@
+<!-- registration.html -->
+
+{% extends 'layout.html' %}
+
+{% block title %}Registration{% endblock %}
+
+{% block content %}
+
+<!-- Registration Form -->
+<form action="/" method="post">
+    <!-- Input for entering username -->
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+
+    <!-- Input for entering name -->
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+
+    <!-- Input for entering date of birth -->
+    <label for="date_of_birth">Date of Birth:</label>
+    <input type="date" id="date_of_birth" name="date_of_birth" required>
+
+    <!-- Input for entering password -->
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+
+    <!-- Input for confirming password -->
+    <label for="confirm_password">Confirm Password:</label>
+    <input type="password" id="confirm_password" name="confirm_password" required>
+
+    <!-- Button to submit the form -->
+    <button type="submit">Register</button>
+</form>
+
+{% endblock %}
