@@ -4,8 +4,8 @@
 
 {% block title %}Logout{% endblock %}
 
-{% block content %}
+{% block main %}
     <h2>You have been successfully logged out.</h2>
     <p>Thank you for using our application.</p>
-    <p><a href="{{ url_for('login') }}">Login again</a></p>
+    <p><a href="/login">Login again</a></p>
 {% endblock %}

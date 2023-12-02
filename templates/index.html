@@ -3,10 +3,10 @@
 {% block title %}College Experience Tracker{% endblock %}
 
 {% block content %}
+<!--name, username-->
+<h1>Profile</h1>
+<p>Username: {{ session["user_id"] }}</p>
+<p>Name: {{ session["name"] }}</p>
 
-    <!-- Content for the Moment Recording section -->
-    <div id="moment_recording_section">
-        {% include 'moment_recording.html' %}
-    </div>
 
 {% endblock %}
