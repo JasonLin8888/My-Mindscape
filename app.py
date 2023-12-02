@@ -99,15 +99,15 @@ def login():
         #hash the password and check
         if user and bcrypt.checkpw(password.encode('utf-8'), user.password):
 
-        # Check if the user exists and the password is correct
-        if user and bcrypt.checkpw(password.encode('utf-8'), user.password):
-            # If the user exists and the password is correct, log the user in
-            session['user_id'] = user.user_id
-            # Redirect to the home page after successful login
-            return redirect(url_for('home'))
-        else:
-            # If the user does not exist or the password is incorrect, redirect to the apology message, invalid credentials page
-            return render_template('apology.html', message='Invalid credentials')
+            # Check if the user exists and the password is correct
+            if user and bcrypt.checkpw(password.encode('utf-8'), user.password):
+                # If the user exists and the password is correct, log the user in
+                session['user_id'] = user.user_id
+                # Redirect to the home page after successful login
+                return redirect(url_for('home'))
+            else:
+                # If the user does not exist or the password is incorrect, redirect to the apology message, invalid credentials page
+                return render_template('apology.html', message='Invalid credentials')
      # Render the login page if it's a GET request or login fails
     return render_template('login.html')
 
@@ -123,7 +123,7 @@ def logout():
 
 
 # Route for recording a moment
-@app.route('/record_moment', methods=['GET', 'POST'])
+@app.route('/moment', methods=['GET', 'POST'])
 @login_required  # Use the helper decorator to ensure the user is logged in
 def record_moment():
    # get input from the form and record it in the mood table in the database
@@ -131,9 +131,8 @@ def record_moment():
         # Process the form data here
         date = request.form['date']
         description = request.form['description']
-        daily_mood = request.form['daily_mood']
         # Create a new entry object using the form data
-        new_entry = mood(user_id=session['user_id'], date=date, description=description, daily_mood=daily_mood)
+        new_entry = mood(user_id=session['user_id'], date=date, description=description)
         # Add the new entry to the database
         db.session.add(new_entry)
         db.session.commit()
@@ -141,6 +140,7 @@ def record_moment():
         return redirect(url_for('home'))
     # Render the record moment page if it's a GET request
     return render_template('record_moment.html')
+
 
 
 if __name__ == '__main__':
