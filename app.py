@@ -113,18 +113,12 @@ def login():
 
         #hash the password and check
         if user and bcrypt.checkpw(password.encode('utf-8'), user.password):
-
-            # Check if the user exists and the password is correct
-            if user and bcrypt.checkpw(password.encode('utf-8'), user.password):
-                # If the user exists and the password is correct, log the user in
-                session['user_id'] = user.user_id
-                # Redirect to the home page after successful login
-                return redirect(url_for('home'))
-            else:
-                # If the user does not exist or the password is incorrect, redirect to the apology message, invalid credentials page
-                return render_template('apology.html', message='Invalid credentials')
-     # Render the login page if it's a GET request or login fails
-    return render_template('login.html')
+            session['user_id'] = user.user_id
+            flash('Login successful!', 'success')
+            return redirect(url_for('home'))
+        else:
+            flash('Invalid credentials', 'danger')
+            return render_template('login.html')
 
 # Route for logging out
 @app.route('/logout')
@@ -294,4 +288,6 @@ if __name__ == '__main__':
         app.run()
     except Exception as e:
         print(f"An error occurred: {str(e)}")
+        # You might want to log the error or handle it appropriately
+        render_template('apology.html', message='An error occurred')
 
