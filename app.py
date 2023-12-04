@@ -41,7 +41,7 @@ class mood(db.Model):
     description = db.Column(db.String(200), nullable=False)
     intensity = db.Column(db.Integer, nullable=False)
     selected_mood = db.Column(db.String(20), nullable=False)
-    reflection = db.Column(db.Text)
+    reflection = db.Column(db.Text, nullable=False)
 #create a function to return a string when we add something
     def __repr__(self):
         return '<username %r>' % self.user_id
