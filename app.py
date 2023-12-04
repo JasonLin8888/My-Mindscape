@@ -1,13 +1,26 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from helpers import login_required, logout_required
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from datetime import timedelta
+from flask_mail import Message, Mail
+from io import BytesIO
 import os
 import bcrypt
 import re
+import matplotlib.pyplot as plt
+import base64
 
 
 app = Flask(__name__)
+mail = Mail(app)
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465  # or 587
+app.config['MAIL_USE_SSL'] = True  # or False
+app.config['MAIL_USE_TLS'] = False  # or True
+app.config['MAIL_USERNAME'] = 'MyMindScape@gmail.com'  # your email
+app.config['MAIL_PASSWORD'] = 'Copyright@Ian&Jason'  # your email password
+app.config['MAIL_DEFAULT_SENDER'] = 'MyMindScape@gmail.com'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///college_experience_tracker.db'
 #initialize the database
 db = SQLAlchemy(app)
@@ -28,6 +41,7 @@ class mood(db.Model):
     description = db.Column(db.String(200), nullable=False)
     intensity = db.Column(db.Integer, nullable=False)
     selected_mood = db.Column(db.String(20), nullable=False)
+    reflection = db.Column(db.Text)
 #create a function to return a string when we add something
     def __repr__(self):
         return '<username %r>' % self.user_id
@@ -160,17 +174,119 @@ def mood():
 
         # Redirect to the home page or another appropriate page
         return redirect(url_for('home'))
+
+
+@app.route('/analytics')
+@login_required
+def analytics():
+    # Retrieve the user's mood data from the database
+    user_id = session['user_id']
+    mood_data = mood.query.filter_by(user_id=user_id).all()
+
+    # Process mood data to extract relevant information for analytics
+    dates = [entry.date for entry in mood_data]
+    daily_moods = [entry.daily_mood for entry in mood_data]
+
+    # Create a line chart using Matplotlib
+    plt.plot(dates, daily_moods)
+    plt.xlabel('Date')
+    plt.ylabel('Daily Mood')
+    plt.title('Mood Trends Over Time')
+    plt.xticks(rotation=45)
+    
+    # Save the plot to a BytesIO object
+    img = BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+    plt.close()
+
+    # Convert the image to base64 for embedding in HTML
+    img_base64 = base64.b64encode(img.getvalue()).decode()
+
+    # Pass the base64-encoded image to the template
+    return render_template('analytics.html', img_base64=img_base64)
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    # Retrieve the user's mood history from the database
+    user_id = session['user_id']
+    mood_history = mood.query.filter_by(user_id=user_id).order_by(mood.date.desc()).limit(10).all()
+
+    # Pass the mood data to the template
+    return render_template('dashboard.html', mood_history=mood_history)
+
+# define function get_mood_data_for_period
+def get_mood_data_for_period(user_id, period):
+    # Retrieve the user's mood data from the database
+    mood_data = mood.query.filter_by(user_id=user_id).all()
+
+    # Calculate the start and end dates for the period
+    if period == 'week':
+        start_date = datetime.now() - timedelta(days=7)
+        end_date = datetime.now()
+    elif period == 'month':
+        start_date = datetime.now() - timedelta(days=30)
+        end_date = datetime.now()
     else:
-        # Handle GET requests to this route if needed
-        # ...
+        start_date = datetime.now() - timedelta(days=365)
+        end_date = datetime.now()
+
+    # Extract the mood data for the period
+    mood_data_for_period = [entry for entry in mood_data if start_date <= entry.date <= end_date]
+
+    return mood_data_for_period
+
+# define function format_mood_summary
+def format_mood_summary(mood_data):
+    # Process the mood data to extract relevant information for the summary
+    dates = [entry.date for entry in mood_data]
+    daily_moods = [entry.intensity for entry in mood_data]
+
+    # Calculate the average mood for the period
+    average_mood = sum(daily_moods) / len(daily_moods)
+
+    # Calculate the mood for the most recent day
+    current_mood = daily_moods[-1]
+
+    # Calculate the mood for the previous day
+    previous_mood = daily_moods[-2]
+
+    # Calculate the mood change between the previous day and the current day
+    mood_change = current_mood - previous_mood
+
+    #create a funtion to send email, using flask mail, body should be formatted summary, and title should be weekly mood summary
+
+# define function send_email
+
+def send_email(to, subject, template):
+    msg = Message(
+        subject,
+        recipients=[to],
+        html=template,
+        sender=app.config['MAIL_DEFAULT_SENDER']
+    )
+    mail.send(msg)
+    
 
 
-if __name__ == '__main__':
-    try:
-        app.run()
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
-# ...
+# Route for sending periodic summaries
+@app.route('/send_periodic_summary', methods=['GET'])
+@login_required
+def send_periodic_summary():
+    # Assuming you have a function to get mood data for the past week or month
+    mood_data = get_mood_data_for_period(session['user_id'], 'week')  # You need to implement this function
+
+    # Assuming you have a function to format mood data for display
+    formatted_summary = format_mood_summary(mood_data)  # You need to implement this function
+
+    # Assuming you have a function to send an email using Flask-Mail
+    send_email(session['user_email'], 'Weekly Mood Summary', formatted_summary)  # You need to implement this function
+
+    return "Periodic summary sent successfully!"
+
+with app.app_context():
+    db.create_all()
 
 
 if __name__ == '__main__':

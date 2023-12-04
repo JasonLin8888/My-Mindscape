@@ -1,0 +1,16 @@
+{% block main %}
+   <h2>Mood History</h2>
+   <ul>
+       {% for entry in mood_history %}
+           <li>{{ entry.date }} - {{ entry.description }} ({{ entry.daily_mood }})</li>
+       {% endfor %}
+   </ul>
+   <ul>
+    {% for entry in mood_history %}
+        <li>
+            {{ entry.date }} - {{ entry.description }} ({{ entry.daily_mood }})<br>
+            Reflection: {{ entry.reflection }}
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
