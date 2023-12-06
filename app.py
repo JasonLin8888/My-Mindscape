@@ -59,7 +59,7 @@ def home():
     return render_template('index.html', entries=entries)
 
 # Route for registration
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register.html', methods=['GET', 'POST'])
 @logout_required  # Use the helper decorator to ensure the user is not logged in
 def register():
     if request.method == 'POST':
