@@ -93,7 +93,8 @@ def register():
         return redirect(url_for('login'))
 
     # Render the registration page if it's a GET request or registration fails
-    return render_template('register.html')
+    return render_template('registration.html')
+
 # Route for the login page
 @app.route('/login', methods=['GET', 'POST'])
 @logout_required  # Use the helper decorator to ensure the user is not logged in
