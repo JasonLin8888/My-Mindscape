@@ -9,10 +9,8 @@
 {% block main %}
 
     <!-- Login Form -->
-    <form action="/login" method="post">
-          <!-- Include CSRF token -->
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <!-- Input for username -->
+    <form action="/login" method="POST">
+\        <!-- Input for username -->
         <div class="mb-3">
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Username" type="text" required>
         </div>

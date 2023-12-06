@@ -101,24 +101,33 @@ def login():
     #Check if the user is already logged in
     if session.get('user_id'):
         # If the user is already logged in, redirect to the home page
-        return redirect(url_for('home'))
+        return render_template('home'))
         # If the request method is POST, process the form data
     if request.method == 'POST':
-        # Process login form data here
+        
+        # Process the login form data here
         username = request.form['username']
         password = request.form['password']
 
-        # Retrieve the user object from the database
+        # Retrieve the user with the username entered by the user
         user = User.query.filter_by(username=username).first()
 
-        #hash the password and check
+        # Check if the user exists and the password is correct
         if user and bcrypt.checkpw(password.encode('utf-8'), user.password):
+            # If the user exists and the password is correct, log in the user and redirect to the home page
             session['user_id'] = user.user_id
-            flash('Login successful!', 'success')
+            session['user_email'] = user.email
+            session['user_name'] = user.name
             return redirect(url_for('home'))
-        else:
-            flash('Invalid credentials', 'danger')
-            return render_template('login.html')
+
+        # If the user does not exist or the password is incorrect, redirect to the apology message, invalid credentials page
+        return render_template('apology.html', message='Invalid credentials')
+
+    # Render the login page if it's a GET request or login fails
+    return render_template('login.html')
+
+
+            
 
 # Route for logging out
 @app.route('/logout')
@@ -153,7 +162,7 @@ def record_moment():
 # Define the route to  mood
 @app.route('/mood', methods=['POST'])
 @login_required  # Ensure the user is logged in
-def mood():
+def mood_route():
     if request.method == 'POST':
         # Retrieve the mood and intensity values from the form submission
         selected_mood = request.form['mood']
