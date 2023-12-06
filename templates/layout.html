@@ -60,8 +60,12 @@
                 </div>
             </header>
             {% else %}
-            <!-- Optional: Provide a message for no flash messages -->
-            Sorry for the inconvenience, but we are performing some maintenance at the moment. We'll be back online shortly!
+                <!-- Optional: Provide a message for no flash messages -->
+                <header>
+                    <div class="alert alert-primary mb-0 text-center" role="alert">
+                        Sorry for the inconvenience, but we are performing some maintenance at the moment. We'll be back online shortly!
+                    </div>
+                </header>
         {% endif %}
 
         <!-- Content block that will be overridden by child pages -->
@@ -71,7 +75,7 @@
 
         <!-- Common footer or scripts can go here -->
         <footer class="mb-5 small text-center text-muted">
-            <a>Brought to you by Ian and Jason</a>
+            <p>Brought to you by Ian and Jason</p>
         </footer>
 
     </body>
