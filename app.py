@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, get_flashed_messages
 from helpers import login_required, logout_required
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -127,7 +127,7 @@ def login():
             return redirect(url_for('home'))
         else:
             flash('Invalid credentials', '400')
-    return render_template('login.html')
+    return render_template('login.html', messages = get_flashed_messages())
 
 # Route for logging out
 @app.route('/logout')
