@@ -101,33 +101,30 @@ def login():
     #Check if the user is already logged in
     if session.get('user_id'):
         # If the user is already logged in, redirect to the home page
-        return render_template('home'))
+        return render_template(('home'))
         # If the request method is POST, process the form data
-    if request.method == 'POST':
         
-        # Process the login form data here
-        username = request.form['username']
-        password = request.form['password']
+    if request.method == 'POST':
+        # Process login form data here
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # Check if username and password were provided
+        if not username or not password:
+            flash('Please provide both username and password', '400')
+            return render_template('login.html')
 
-        # Retrieve the user with the username entered by the user
+        # Retrieve the user object from the database
         user = User.query.filter_by(username=username).first()
 
-        # Check if the user exists and the password is correct
+        # Hash the password and check
         if user and bcrypt.checkpw(password.encode('utf-8'), user.password):
-            # If the user exists and the password is correct, log in the user and redirect to the home page
             session['user_id'] = user.user_id
-            session['user_email'] = user.email
-            session['user_name'] = user.name
+            flash('Login successful!', '200')
             return redirect(url_for('home'))
-
-        # If the user does not exist or the password is incorrect, redirect to the apology message, invalid credentials page
-        return render_template('apology.html', message='Invalid credentials')
-
-    # Render the login page if it's a GET request or login fails
+        else:
+            flash('Invalid credentials', '400')
     return render_template('login.html')
-
-
-            
 
 # Route for logging out
 @app.route('/logout')
@@ -162,7 +159,7 @@ def record_moment():
 # Define the route to  mood
 @app.route('/mood', methods=['POST'])
 @login_required  # Ensure the user is logged in
-def mood_route():
+def mood():
     if request.method == 'POST':
         # Retrieve the mood and intensity values from the form submission
         selected_mood = request.form['mood']
