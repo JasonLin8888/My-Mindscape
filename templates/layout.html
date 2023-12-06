@@ -52,12 +52,28 @@
             </div>
         </nav>
 
-    <!-- Content block that will be overridden by child pages -->
-    <main>
-        {% block main %}{% endblock %}
-    </main>
+        <!-- Place to display flashed messages -->
+        {% if get_flashed_messages() %}
+            <header>
+                <div class="alert alert-primary mb-0 text-center" role="alert">
+                    {{ messages[0] }}
+                </div>
+            </header>
+            {% else %}
+            <!-- Optional: Provide a message for no flash messages -->
+            Sorry for the inconvenience, but we are performing some maintenance at the moment. We'll be back online shortly!
+        {% endif %}
 
-    <!-- Common footer or scripts can go here -->
+        <!-- Content block that will be overridden by child pages -->
+        <main>
+            {% block main %}{% endblock %}
+        </main>
+
+        <!-- Common footer or scripts can go here -->
+        <footer class="mb-5 small text-center text-muted">
+            Brought to you by Ian and Jason
+        </footer>
 
     </body>
+
 </html>
