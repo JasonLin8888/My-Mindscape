@@ -7,10 +7,11 @@
 {% endblock %}
 
 {% block main %}
-
     <!-- Login Form -->
-    <form action="/login" method="POST">
-\        <!-- Input for username -->
+    <form action="/login" method="post">
+          <!-- Include CSRF token -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <!-- Input for username -->
         <div class="mb-3">
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Username" type="text" required>
         </div>
@@ -21,15 +22,4 @@
         <!-- Button to submit the form -->
         <button class="btn btn-primary btn-block" type="submit">Log In</button>
     </form>
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <div class="alert alert-danger">
-            {{ messages[0] }}
-        </div>
-        {% else %}
-        <!-- Optional: Provide a message for no flash messages -->
-        Sorry for the inconvenience, but we are performing some maintenance at the moment. We'll be back online shortly!
-    {% endif %}
-    {% endwith %}
-
 {% endblock %}
