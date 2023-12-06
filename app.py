@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, get_flashed_messages
-from helpers import login_required, logout_required
+from helpers import login_required, logout_required, apology
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from datetime import timedelta
@@ -114,8 +114,7 @@ def login():
         
         # Check if username and password were provided
         if not username or not password:
-            flash('Please provide both username and password', '400')
-            return render_template('login.html')
+            return apology ("Please provide both username and password", '400')
 
         # Retrieve the user object from the database
         user = User.query.filter_by(username=username).first()
@@ -126,7 +125,7 @@ def login():
             flash('Login successful!', '200')
             return redirect(url_for('home'))
         else:
-            flash('Invalid credentials', '400')
+            flash('Invalid credentials, please try again or sign up first', '400')
     return render_template('login.html', messages = get_flashed_messages())
 
 # Route for logging out

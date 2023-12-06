@@ -1,7 +1,7 @@
 # Inside helpers.py
 
 from functools import wraps
-from flask import redirect, url_for, session
+from flask import redirect, url_for, session, render_template
 
 def login_required(f):
     @wraps(f)
@@ -18,3 +18,26 @@ def logout_required(func):
             return redirect(url_for('home'))  # Redirect to home if user is already logged in
         return func(*args, **kwargs)
     return wrapper
+def apology(message, code=400):
+    """Render message as an apology to user."""
+
+    def escape(s):
+        """
+        Escape special characters.
+
+        https://github.com/jacebrowning/memegen#special-characters
+        """
+        for old, new in [
+            ("-", "--"),
+            (" ", "-"),
+            ("_", "__"),
+            ("?", "~q"),
+            ("%", "~p"),
+            ("#", "~h"),
+            ("/", "~s"),
+            ('"', "''"),
+        ]:
+            s = s.replace(old, new)
+        return s
+
+    return render_template ("apology.html", top=code, bottom=escape(message)), code
