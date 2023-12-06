@@ -10,9 +10,11 @@ import bcrypt
 import re
 import matplotlib.pyplot as plt
 import base64
+import secrets
 
 
 app = Flask(__name__)
+app.secret_key = secrets.token_hex(16)
 mail = Mail(app)
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 465  # or 587
