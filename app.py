@@ -69,10 +69,11 @@ def register():
     # Check if the incoming request method is POST
     if request.method == "POST":
         # Retrieve the values submitted in the form: username, password, and confirmation
+        name = request.form.get("name")
         username = request.form.get("username")
         password = request.form.get("password")
         confirmation = request.form.get("confirmation")
-        name = request.form.get("name")
+        email = request.form.get("email")
                 # If username is missing, flash an apology message
         if not username:
                 # If username is missing, flash an apology message
@@ -97,10 +98,11 @@ def register():
         # Add user information to the users table after passing all checks
         hashed_password = generate_password_hash(password)
         db.execute(
-            "INSERT INTO User (name, username, password) VALUES (?, ?, ?)",
+            "INSERT INTO User (name, username, password, email) VALUES (?, ?, ?, ?)",
             name,
             username,
             hashed_password,
+            email,
         )
 
         # Commit the changes to the database
