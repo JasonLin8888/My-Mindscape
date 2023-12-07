@@ -68,6 +68,9 @@ def register():
     
     # Check if the incoming request method is POST
     if request.method == "POST":
+        # Start a transaction
+            try:
+                with db.execute("BEGIN"):
         # Retrieve the values submitted in the form: username, password, and confirmation
         name = request.form.get("name")
         username = request.form.get("username")
@@ -324,4 +327,10 @@ if __name__ == '__main__':
         print(f"An error occurred: {str(e)}")
         # You might want to log the error or handle it appropriately
         render_template('apology.html', message='An error occurred')
+
+        db.execute("ROLLBACK")
+        print(f"An error occurred: {str(e)}")
+        # You might want to log the error or handle it appropriately
+        return render_template('apology.html', message='An error occurred')
+
 

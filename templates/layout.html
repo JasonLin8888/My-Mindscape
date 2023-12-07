@@ -56,17 +56,20 @@
         {% if get_flashed_messages() %}
             <header>
                 <div class="alert alert-primary mb-0 text-center" role="alert">
-                    {{ messages[0] }}
+                    {{ message[0] }}
                     {{ get_flashed_messages() | join(" ") }}
                 </div>
             </header>
         {% endif %}'
         
-        {% if messages %}
-        <div id="flash-messages">
-            {{ messages[0] }}
-        </div>
-        {% endif %}
+        {% with messages = get_flashed_messages() %}
+            {% if message %}
+            <div id="flash-messages">
+                {{ message[0] }}
+                {{ get_flashed_messages() | join(" ") }}
+            </div>
+            {% endif %}
+        {% endwith %}
 
         <!-- Content block that will be overridden by child pages -->
         <main>
