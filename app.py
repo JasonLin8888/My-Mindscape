@@ -233,7 +233,6 @@ def analytics():
         # Pass the base64-encoded image to the template
         return render_template('analytics.html', img_base64=img_base64)
     except Exception as e:
-   
         # Log the error
         print(f"Error generating mood analytics image: {str(e)}")
         # Flash an error message to be displayed in the template
