@@ -134,7 +134,6 @@ def login():
             "SELECT * FROM User WHERE username = ?", request.form.get("username")
         )
 
-        # Hash the password and check
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(
                 rows[0]["password"], request.form.get("password")
@@ -142,8 +141,8 @@ def login():
             return apology("invalid username and/or password", 403)
 
         # Remember which user has logged in
-        if rows and "id" in rows[0]:
-            session["user_id"] = rows[0]["id"]
+        if rows and "user_id" in rows[0]:
+            session["id"] = rows[0]["user_id"]
         else:
             # Handle the case where 'rows' is empty or 'id' is not in 'rows[0]'
             print("No 'id' found in 'rows'")

@@ -18,6 +18,7 @@ def logout_required(func):
             return redirect(url_for('home'))  # Redirect to home if user is already logged in
         return func(*args, **kwargs)
     return wrapper
+
 def apology(message, code=400):
     """Render message as an apology to user."""
 
