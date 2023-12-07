@@ -122,12 +122,12 @@ def login():
         # If the request method is POST, process the form data
 
     if request.method == 'POST':
-        # Check if username and password were provided
-        if not username or not password:
-            return apology("Please provide both username and password", 403)
         # Process login form data here
         username = request.form.get('username')
         password = request.form.get('password')
+        # Check if username and password were provided
+        if not username or not password:
+            return apology("Please provide both username and password", 403)
 
         # Query database for username
         rows = db.execute(
