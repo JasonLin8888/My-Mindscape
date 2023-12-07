@@ -62,52 +62,60 @@ def home():
 
 # Route for registration
 @app.route('/register', methods=['GET', 'POST'])
-@logout_required  # Use the helper decorator to ensure the user is not logged in
+@logout_required
 def register():
-      """Register user"""
-
+    """Register user"""
+    
     # Check if the incoming request method is POST
-      if request.method == "POST":
-            # Retrieve the values submitted in the form: username, password, and confirmation
-            username = request.form.get("username")
-            password = request.form.get("password")
-            confirmation = request.form.get("confirmation")
-        
+    if request.method == "POST":
+        # Retrieve the values submitted in the form: username, password, and confirmation
+        username = request.form.get("username")
+        password = request.form.get("password")
+        confirmation = request.form.get("confirmation")
 
             if not username:
+            if not username:
                 # If username is missing, flash an apology message
-                flash("Missing username")
-                return redirect(url_for("register"))
-            elif not password or not confirmation:
+        if not username:
+                # If username is missing, flash an apology message
+            flash("Missing username")
+            return redirect(url_for("register"))
+        elif not password or not confirmation:
                 # If either password or confirmation is missing, flash an apology message
-                flash("Missing password")
-                return redirect(url_for("register"))
-            elif password != confirmation:
+            flash("Missing password")
+            return redirect(url_for("register"))
+        elif password != confirmation:
                 # If passwords do not match, flash an apology message
-                flash("Passwords do not match")
-                return redirect(url_for("register"))
+            flash("Passwords do not match")
+            return redirect(url_for("register"))
 
-            # Check whether there are similar usernames in the database
-            existing_user = db.execute("SELECT * FROM User WHERE username = ?", username)
-            if existing_user:
+        # Check whether there are similar usernames in the database
+        existing_user = db.execute("SELECT * FROM User WHERE username = ?", username)
+
+        if existing_user:
                 # If the username already exists, flash an apology message
-                flash("Username already exists")
-                return redirect(url_for("register"))
+            flash("Username already exists")
+            return redirect(url_for("register"))
 
-            # Add user information to the users table after passing all checks
-            hashed_password = generate_password_hash(password)
-            db.execute(
-                "INSERT INTO User (username, password) VALUES (?, ?)",
-                username,
-                hashed_password,
-            )
+        # Add user information to the users table after passing all checks
+        hashed_password = generate_password_hash(password)
+        db.execute(
+            "INSERT INTO User (name, username, password) VALUES (?, ?, ?)",
+            name,
+            username,
+            hashed_password,
+        )
 
-            # Redirect or flash a success message as needed
-            return redirect("/")
+        # Commit the changes to the database
+        db.commit()
 
-      else:
-            # Render the registration template for GET requests
+        # Redirect or flash a success message as needed
+        return redirect("/")
+
+    else:
+        # Render the registration template for GET requests
         return render_template("register.html")
+
 
 # Route for the login page
 @app.route('/login', methods=['GET', 'POST'])
