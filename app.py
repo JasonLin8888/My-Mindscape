@@ -69,25 +69,25 @@ def register():
     # Check if the incoming request method is POST
 if request.method == "POST":
         # Start a transaction
-    try:
-        with db.execute("BEGIN"):
-            # Retrieve the values submitted in the form: username, password, and confirmation
-            name = request.form.get("name")
-            username = request.form.get("username")
-            password = request.form.get("password")
-            confirmation = request.form.get("confirmation")
-            email = request.form.get("email")
+        try:
+            with db.execute("BEGIN"):
+                # Retrieve the values submitted in the form: username, password, and confirmation
+                name = request.form.get("name")
+                username = request.form.get("username")
+                password = request.form.get("password")
+                confirmation = request.form.get("confirmation")
+                email = request.form.get("email")
 
-            # If username is missing, flash an apology message
-            if not username:
-                flash("Missing username")
-                return redirect(url_for("register"))
-            elif not password or not confirmation:
-                flash("Missing password")
-                return redirect(url_for("register"))
-            elif password != confirmation:
-                flash("Passwords do not match")
-                return redirect(url_for("register"))
+                # If username is missing, flash an apology message
+                if not username:
+                    flash("Missing username")
+                    return redirect(url_for("register"))
+                elif not password or not confirmation:
+                    flash("Missing password")
+                    return redirect(url_for("register"))
+                elif password != confirmation:
+                    flash("Passwords do not match")
+                    return redirect(url_for("register"))
 
             # Check whether there are similar usernames in the database
             existing_user = db.execute("SELECT * FROM User WHERE username = ?", username)
@@ -97,10 +97,10 @@ if request.method == "POST":
                 flash("Username already exists")
                 return redirect(url_for("register"))
 
-            # Add user information to the users table after passing all checks
-            db.execute("INSERT INTO User (name, username, password, email) VALUES (?, ?, ?, ?)",
-                       name, username, generate_password_hash(password), email)
-            db.commit()
+                # Add user information to the users table after passing all checks
+                db.execute("INSERT INTO User (name, username, password, email) VALUES (?, ?, ?, ?)",
+                           name, username, generate_password_hash(password), email)
+                db.commit()
             name = request.form.get("name")
             username = request.form.get("username")
             password = request.form.get("password")
@@ -142,16 +142,16 @@ if request.method == "POST":
 
             # Redirect or flash a success message as needed
             return redirect("/")
-    except Exception as e:
-        db.execute("ROLLBACK")
-        print(f"An error occurred: {str(e)}")
-        # You might want to log the error or handle it appropriately
-        return render_template('apology.html', message='An error occurred')
+        except Exception as e:
+            db.execute("ROLLBACK")
+            print(f"An error occurred: {str(e)}")
+            # You might want to log the error or handle it appropriately
+            return render_template('apology.html', message='An error occurred')
 
 
-else:
-    # Render the registration template for GET requests
-    return render_template("register.html")
+    else:
+        # Render the registration template for GET requests
+        return render_template("register.html")
 
 
 # Route for the login page
