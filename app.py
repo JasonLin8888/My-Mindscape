@@ -88,7 +88,7 @@ def register():
                 return redirect(url_for("register"))
 
             # Check whether there are similar usernames in the database
-            existing_user = db.execute("SELECT * FROM users WHERE username = ?", username)
+            existing_user = db.execute("SELECT * FROM User WHERE username = ?", username)
             if existing_user:
                 # If the username already exists, flash an apology message
                 flash("Username already exists")
@@ -97,7 +97,7 @@ def register():
             # Add user information to the users table after passing all checks
             hashed_password = generate_password_hash(password)
             db.execute(
-                "INSERT INTO users (username, hash) VALUES (?, ?)",
+                "INSERT INTO User (username, password) VALUES (?, ?)",
                 username,
                 hashed_password,
             )
