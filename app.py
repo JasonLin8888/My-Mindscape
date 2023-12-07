@@ -51,6 +51,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///college_experience_tracker.db
 @app.route('/')
 @login_required  # Use the helper decorator to ensure the user is logged in
 def home():
+    # Retrieve the entries for the logged-in user
+    # entries = mood.query.filter_by(user_id=session['user_id']).all()
+
     # Render the home page with the retrieved entries
     return render_template('index.html')
 
