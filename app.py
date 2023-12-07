@@ -51,7 +51,7 @@ class mood(db.Model):
 @login_required  # Use the helper decorator to ensure the user is logged in
 def home():
     # Retrieve the entries for the logged-in user
-    entries = mood.query.filter_by(user_id=session['user_id']).all()
+    # entries = mood.query.filter_by(user_id=session['user_id']).all()
 
     # Render the home page with the retrieved entries
     return render_template('index.html', entries=entries)
