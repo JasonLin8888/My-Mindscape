@@ -72,26 +72,22 @@ def register():
         username = request.form.get("username")
         password = request.form.get("password")
         confirmation = request.form.get("confirmation")
-
-            if not username:
-            if not username:
                 # If username is missing, flash an apology message
         if not username:
                 # If username is missing, flash an apology message
             flash("Missing username")
             return redirect(url_for("register"))
         elif not password or not confirmation:
-                # If either password or confirmation is missing, flash an apology message
             flash("Missing password")
             return redirect(url_for("register"))
         elif password != confirmation:
-                # If passwords do not match, flash an apology message
             flash("Passwords do not match")
             return redirect(url_for("register"))
 
         # Check whether there are similar usernames in the database
         existing_user = db.execute("SELECT * FROM User WHERE username = ?", username)
 
+                # If the username already exists, flash an apology message
         if existing_user:
                 # If the username already exists, flash an apology message
             flash("Username already exists")
@@ -167,153 +163,153 @@ def logout():
 
 
 
-# Route for recording a moment
-@app.route('/moment', methods=['GET', 'POST'])
-@login_required  # Use the helper decorator to ensure the user is logged in
-def record_moment():
-   # get input from the form and record it in the mood table in the database
-    if request.method == 'POST':
-        # Process the form data here
-        date = request.form['date']
-        description = request.form['description']
-        # Create a new entry object using the form data
-        new_entry = mood(user_id=session['user_id'], date=date, description=description)
-        # Add the new entry to the database
-        db.session.add(new_entry)
-        db.session.commit()
-        # Redirect to the home page after successful login
-        return redirect(url_for('home'))
-    # Render the record moment page if it's a GET request
-    return render_template('record_moment.html')
+# # Route for recording a moment
+# @app.route('/moment', methods=['GET', 'POST'])
+# @login_required  # Use the helper decorator to ensure the user is logged in
+# def record_moment():
+#    # get input from the form and record it in the mood table in the database
+#     if request.method == 'POST':
+#         # Process the form data here
+#         date = request.form['date']
+#         description = request.form['description']
+#         # Create a new entry object using the form data
+#         new_entry = mood(user_id=session['user_id'], date=date, description=description)
+#         # Add the new entry to the database
+#         db.session.add(new_entry)
+#         db.session.commit()
+#         # Redirect to the home page after successful login
+#         return redirect(url_for('home'))
+#     # Render the record moment page if it's a GET request
+#     return render_template('record_moment.html')
 
-# Define the route to  mood
-@app.route('/mood', methods=['POST'])
-@login_required  # Ensure the user is logged in
-def mood():
-    if request.method == 'POST':
-        # Retrieve the mood and intensity values from the form submission
-        selected_mood = request.form['mood']
-        intensity = int(request.form['intensity'])
+# # Define the route to  mood
+# @app.route('/mood', methods=['POST'])
+# @login_required  # Ensure the user is logged in
+# def mood():
+#     if request.method == 'POST':
+#         # Retrieve the mood and intensity values from the form submission
+#         selected_mood = request.form['mood']
+#         intensity = int(request.form['intensity'])
 
-        # Perform any necessary processing or validation
+#         # Perform any necessary processing or validation
 
-        # Create a new mood entry in the database
-        new_entry = mood(user_id=session['user_id'], mood=selected_mood, intensity=intensity, date=datetime.now())
-        db.session.add(new_entry)
-        db.session.commit()
+#         # Create a new mood entry in the database
+#         new_entry = mood(user_id=session['user_id'], mood=selected_mood, intensity=intensity, date=datetime.now())
+#         db.session.add(new_entry)
+#         db.session.commit()
 
-        # Redirect to the home page or another appropriate page
-        return redirect(url_for('home'))
+#         # Redirect to the home page or another appropriate page
+#         return redirect(url_for('home'))
 
 
-@app.route('/analytics')
-@login_required
-def analytics():
-    # Retrieve the user's mood data from the database
-    user_id = session['user_id']
-    mood_data = mood.query.filter_by(user_id=user_id).all()
+# @app.route('/analytics')
+# @login_required
+# def analytics():
+#     # Retrieve the user's mood data from the database
+#     user_id = session['user_id']
+#     mood_data = mood.query.filter_by(user_id=user_id).all()
 
-    # Process mood data to extract relevant information for analytics
-    dates = [entry.date for entry in mood_data]
-    daily_moods = [entry.daily_mood for entry in mood_data]
+#     # Process mood data to extract relevant information for analytics
+#     dates = [entry.date for entry in mood_data]
+#     daily_moods = [entry.daily_mood for entry in mood_data]
 
-    # Create a line chart using Matplotlib
-    plt.plot(dates, daily_moods)
-    plt.xlabel('Date')
-    plt.ylabel('Daily Mood')
-    plt.title('Mood Trends Over Time')
-    plt.xticks(rotation=45)
+#     # Create a line chart using Matplotlib
+#     plt.plot(dates, daily_moods)
+#     plt.xlabel('Date')
+#     plt.ylabel('Daily Mood')
+#     plt.title('Mood Trends Over Time')
+#     plt.xticks(rotation=45)
     
-    # Save the plot to a BytesIO object
-    img = BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plt.close()
+#     # Save the plot to a BytesIO object
+#     img = BytesIO()
+#     plt.savefig(img, format='png')
+#     img.seek(0)
+#     plt.close()
 
-    # Convert the image to base64 for embedding in HTML
-    img_base64 = base64.b64encode(img.getvalue()).decode()
+#     # Convert the image to base64 for embedding in HTML
+#     img_base64 = base64.b64encode(img.getvalue()).decode()
 
-    # Pass the base64-encoded image to the template
-    return render_template('analytics.html', img_base64=img_base64)
+#     # Pass the base64-encoded image to the template
+#     return render_template('analytics.html', img_base64=img_base64)
 
-@app.route('/dashboard')
-@login_required
-def dashboard():
-    # Retrieve the user's mood history from the database
-    user_id = session['user_id']
-    mood_history = mood.query.filter_by(user_id=user_id).order_by(mood.date.desc()).limit(10).all()
+# @app.route('/dashboard')
+# @login_required
+# def dashboard():
+#     # Retrieve the user's mood history from the database
+#     user_id = session['user_id']
+#     mood_history = mood.query.filter_by(user_id=user_id).order_by(mood.date.desc()).limit(10).all()
 
-    # Pass the mood data to the template
-    return render_template('dashboard.html', mood_history=mood_history)
+#     # Pass the mood data to the template
+#     return render_template('dashboard.html', mood_history=mood_history)
 
-# define function get_mood_data_for_period
-def get_mood_data_for_period(user_id, period):
-    # Retrieve the user's mood data from the database
-    mood_data = mood.query.filter_by(user_id=user_id).all()
+# # define function get_mood_data_for_period
+# def get_mood_data_for_period(user_id, period):
+#     # Retrieve the user's mood data from the database
+#     mood_data = mood.query.filter_by(user_id=user_id).all()
 
-    # Calculate the start and end dates for the period
-    if period == 'week':
-        start_date = datetime.now() - timedelta(days=7)
-        end_date = datetime.now()
-    elif period == 'month':
-        start_date = datetime.now() - timedelta(days=30)
-        end_date = datetime.now()
-    else:
-        start_date = datetime.now() - timedelta(days=365)
-        end_date = datetime.now()
+#     # Calculate the start and end dates for the period
+#     if period == 'week':
+#         start_date = datetime.now() - timedelta(days=7)
+#         end_date = datetime.now()
+#     elif period == 'month':
+#         start_date = datetime.now() - timedelta(days=30)
+#         end_date = datetime.now()
+#     else:
+#         start_date = datetime.now() - timedelta(days=365)
+#         end_date = datetime.now()
 
-    # Extract the mood data for the period
-    mood_data_for_period = [entry for entry in mood_data if start_date <= entry.date <= end_date]
+#     # Extract the mood data for the period
+#     mood_data_for_period = [entry for entry in mood_data if start_date <= entry.date <= end_date]
 
-    return mood_data_for_period
+#     return mood_data_for_period
 
-# define function format_mood_summary
-def format_mood_summary(mood_data):
-    # Process the mood data to extract relevant information for the summary
-    dates = [entry.date for entry in mood_data]
-    daily_moods = [entry.intensity for entry in mood_data]
+# # define function format_mood_summary
+# def format_mood_summary(mood_data):
+#     # Process the mood data to extract relevant information for the summary
+#     dates = [entry.date for entry in mood_data]
+#     daily_moods = [entry.intensity for entry in mood_data]
 
-    # Calculate the average mood for the period
-    average_mood = sum(daily_moods) / len(daily_moods)
+#     # Calculate the average mood for the period
+#     average_mood = sum(daily_moods) / len(daily_moods)
 
-    # Calculate the mood for the most recent day
-    current_mood = daily_moods[-1]
+#     # Calculate the mood for the most recent day
+#     current_mood = daily_moods[-1]
 
-    # Calculate the mood for the previous day
-    previous_mood = daily_moods[-2]
+#     # Calculate the mood for the previous day
+#     previous_mood = daily_moods[-2]
 
-    # Calculate the mood change between the previous day and the current day
-    mood_change = current_mood - previous_mood
+#     # Calculate the mood change between the previous day and the current day
+#     mood_change = current_mood - previous_mood
 
-    #create a funtion to send email, using flask mail, body should be formatted summary, and title should be weekly mood summary
+#     #create a funtion to send email, using flask mail, body should be formatted summary, and title should be weekly mood summary
 
-# define function send_email
+# # define function send_email
 
-def send_email(to, subject, template):
-    msg = Message(
-        subject,
-        recipients=[to],
-        html=template,
-        sender=app.config['MAIL_DEFAULT_SENDER']
-    )
-    mail.send(msg)
+# def send_email(to, subject, template):
+#     msg = Message(
+#         subject,
+#         recipients=[to],
+#         html=template,
+#         sender=app.config['MAIL_DEFAULT_SENDER']
+#     )
+#     mail.send(msg)
     
 
 
-# Route for sending periodic summaries
-@app.route('/send_periodic_summary', methods=['GET'])
-@login_required
-def send_periodic_summary():
-    # Assuming you have a function to get mood data for the past week or month
-    mood_data = get_mood_data_for_period(session['user_id'], 'week')  # You need to implement this function
+# # Route for sending periodic summaries
+# @app.route('/send_periodic_summary', methods=['GET'])
+# @login_required
+# def send_periodic_summary():
+#     # Assuming you have a function to get mood data for the past week or month
+#     mood_data = get_mood_data_for_period(session['user_id'], 'week')  # You need to implement this function
 
-    # Assuming you have a function to format mood data for display
-    formatted_summary = format_mood_summary(mood_data)  # You need to implement this function
+#     # Assuming you have a function to format mood data for display
+#     formatted_summary = format_mood_summary(mood_data)  # You need to implement this function
 
-    # Assuming you have a function to send an email using Flask-Mail
-    send_email(session['user_email'], 'Weekly Mood Summary', formatted_summary)  # You need to implement this function
+#     # Assuming you have a function to send an email using Flask-Mail
+#     send_email(session['user_email'], 'Weekly Mood Summary', formatted_summary)  # You need to implement this function
 
-    return "Periodic summary sent successfully!"
+#     return "Periodic summary sent successfully!"
 
 
 
