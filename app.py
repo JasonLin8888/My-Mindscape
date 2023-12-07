@@ -142,13 +142,16 @@ def login():
             return apology("invalid username and/or password", 403)
 
         # Remember which user has logged in
-        session["user_id"] = rows[0]["id"]
+        if rows and "id" in rows[0]:
+            session["user_id"] = rows[0]["id"]
+        else:
+            # Handle the case where 'rows' is empty or 'id' is not in 'rows[0]'
+            print("No 'id' found in 'rows'")
 
         # Redirect user to home page
         return redirect("/")
     else:
         return render_template("login.html")
-
 
 # Route for logging out
 @app.route('/logout')
