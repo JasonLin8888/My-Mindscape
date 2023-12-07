@@ -72,6 +72,7 @@ def register():
         username = request.form.get("username")
         password = request.form.get("password")
         confirmation = request.form.get("confirmation")
+        name = request.form.get("name")
                 # If username is missing, flash an apology message
         if not username:
                 # If username is missing, flash an apology message
