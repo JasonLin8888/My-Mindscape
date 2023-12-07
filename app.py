@@ -15,13 +15,12 @@ import matplotlib.pyplot as plt
 import base64
 import secrets
 
-
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-#initialize the database
+# initialize the database
 db = SQL("sqlite:///mindscape.db")
 
 # Make sure API key is set
@@ -38,7 +37,7 @@ def after_request(response):
     return response
 
 mail = Mail(app)
-app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465  # or 587
 app.config['MAIL_USE_SSL'] = True  # or False
 app.config['MAIL_USE_TLS'] = False  # or True
@@ -46,8 +45,6 @@ app.config['MAIL_USERNAME'] = 'MyMindScape@gmail.com'  # your email
 app.config['MAIL_PASSWORD'] = 'Copyright@Ian&Jason'  # your email password
 app.config['MAIL_DEFAULT_SENDER'] = 'MyMindScape@gmail.com'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///college_experience_tracker.db'
-
-
 
 
 # Route for the home page
@@ -60,14 +57,15 @@ def home():
     # Render the home page with the retrieved entries
     return render_template('index.html', entries=entries)
 
+
 # Route for registration
 @app.route('/register', methods=['GET', 'POST'])
 @logout_required
 def register():
     """Register user"""
-    
+
     # Check if the incoming request method is POST
-if request.method == "POST":
+    if request.method == "POST":
         # Start a transaction
         try:
             with db.execute("BEGIN"):
@@ -89,65 +87,24 @@ if request.method == "POST":
                     flash("Passwords do not match")
                     return redirect(url_for("register"))
 
-            # Check whether there are similar usernames in the database
-            existing_user = db.execute("SELECT * FROM User WHERE username = ?", username)
+                # Check whether there are similar usernames in the database
+                existing_user = db.execute("SELECT * FROM User WHERE username = ?", username)
 
-            # If the username already exists, flash an apology message
-            if existing_user:
-                flash("Username already exists")
-                return redirect(url_for("register"))
+                # If the username already exists, flash an apology message
+                if existing_user:
+                    flash("Username already exists")
+                    return redirect(url_for("register"))
 
                 # Add user information to the users table after passing all checks
                 db.execute("INSERT INTO User (name, username, password, email) VALUES (?, ?, ?, ?)",
                            name, username, generate_password_hash(password), email)
                 db.commit()
-            name = request.form.get("name")
-            username = request.form.get("username")
-            password = request.form.get("password")
-            confirmation = request.form.get("confirmation")
-            email = request.form.get("email")
-                    # If username is missing, flash an apology message
-            if not username:
-             # If username is missing, flash an apology message
-                        flash("Missing username")
-                        return redirect(url_for("register"))
-            elif not password or not confirmation:
-                flash("Missing password")
                 return redirect(url_for("register"))
-            elif password != confirmation:
-                flash("Passwords do not match")
-                return redirect(url_for("register"))
-
-            # Check whether there are similar usernames in the database
-            existing_user = db.execute("SELECT * FROM User WHERE username = ?", username)
-
-                    # If the username already exists, flash an apology message
-            if existing_user:
-                    # If the username already exists, flash an apology message
-                flash("Username already exists")
-                return redirect(url_for("register"))
-
-            # Add user information to the users table after passing all checks
-            hashed_password = generate_password_hash(password)
-            db.execute(
-                "INSERT INTO User (name, username, password, email) VALUES (?, ?, ?, ?)",
-                name,
-                username,
-                hashed_password,
-                email,
-            )
-
-            # Commit the changes to the database
-            db.execute("COMMIT")
-
-            # Redirect or flash a success message as needed
-            return redirect("/")
         except Exception as e:
             db.execute("ROLLBACK")
             print(f"An error occurred: {str(e)}")
             # You might want to log the error or handle it appropriately
             return render_template('apology.html', message='An error occurred')
-
 
     else:
         # Render the registration template for GET requests
@@ -158,41 +115,41 @@ if request.method == "POST":
 @app.route('/login', methods=['GET', 'POST'])
 @logout_required  # Use the helper decorator to ensure the user is not logged in
 def login():
-    #Check if the user is already logged in
+    # Check if the user is already logged in
     if session.get('user_id'):
         # If the user is already logged in, redirect to the home page
         return render_template(('home'))
         # If the request method is POST, process the form data
-        
+
     if request.method == 'POST':
         # Check if username and password were provided
         if not username or not password:
-            return apology ("Please provide both username and password", 403)
+            return apology("Please provide both username and password", 403)
         # Process login form data here
         username = request.form.get('username')
         password = request.form.get('password')
-        
-    # Query database for username
+
+        # Query database for username
         rows = db.execute(
-                "SELECT * FROM users WHERE username = ?", request.form.get("username")
-            )
+            "SELECT * FROM users WHERE username = ?", request.form.get("username")
+        )
 
         # Hash the password and check
-         # Ensure username exists and password is correct
+        # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(
-            rows[0]["hash"], request.form.get("password")
+                rows[0]["hash"], request.form.get("password")
         ):
             return apology("invalid username and/or password", 403)
-        
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
 
-         # Redirect user to home page
+        # Redirect user to home page
         return redirect("/")
     else:
         return render_template("login.html")
-    
+
+
 # Route for logging out
 @app.route('/logout')
 @login_required  # Use the helper decorator to ensure the user is logged in
