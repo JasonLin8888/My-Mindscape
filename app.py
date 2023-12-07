@@ -312,12 +312,14 @@ def logout():
 
 
 if __name__ == '__main__':
+    print("Reached app.run")
     try:
         app.run(debug=True)
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         # You might want to log the error or handle it appropriately
         render_template('apology.html', message='An error occurred')
+
 
 
 
