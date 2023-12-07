@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, get_flashed_messages
 from helpers import login_required, logout_required, apology
-from flask_sqlalchemy import SQLAlchemy
+from cs50 import SQL
 from datetime import datetime
+from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import timedelta
 from flask_mail import Message, Mail
 from flask_migrate import Migrate
+from flask_session import Session
 from io import BytesIO
 import os
 import bcrypt
@@ -15,11 +17,26 @@ import secrets
 
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(16)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mindscape.db'
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
 #initialize the database
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+db = SQL("sqlite:///mindscape.db")
+
+# Make sure API key is set
+os.environ["API_KEY"] = "sk_fbakoshg73nmak7379sr"
+if not os.environ.get("API_KEY"):
+    raise RuntimeError("API_KEY not set")
+
+@app.after_request
+def after_request(response):
+    """Ensure responses aren't cached"""
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Expires"] = 0
+    response.headers["Pragma"] = "no-cache"
+    return response
+
 mail = Mail(app)
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 465  # or 587
@@ -31,26 +48,7 @@ app.config['MAIL_DEFAULT_SENDER'] = 'MyMindScape@gmail.com'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///college_experience_tracker.db'
 
 
-# Define the User model
-class User(db.Model):
-    user_id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
 
-# Define the mood model
-class mood(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
-    date = db.Column(db.Date, nullable=False)
-    description = db.Column(db.String(200), nullable=False)
-    intensity = db.Column(db.Integer, nullable=False)
-    selected_mood = db.Column(db.String(20), nullable=False)
-    reflection = db.Column(db.Text, nullable=False)
-#create a function to return a string when we add something
-    def __repr__(self):
-        return '<username %r>' % self.user_id
 
 # Route for the home page
 @app.route('/')
@@ -66,45 +64,50 @@ def home():
 @app.route('/register', methods=['GET', 'POST'])
 @logout_required  # Use the helper decorator to ensure the user is not logged in
 def register():
-    if request.method == 'POST':
-        # Process registration form data here
-        username = request.form['username']
+      """Register user"""
 
-        # Check if the username already exists
-        if User.query.filter_by(username=username).first():
-            # If the username already exists, redirect to the apology message, username already exists page
-            return render_template('apology.html', message='Username already exists')
+    # Check if the incoming request method is POST
+      if request.method == "POST":
+            # Retrieve the values submitted in the form: username, password, and confirmation
+            username = request.form.get("username")
+            password = request.form.get("password")
+            confirmation = request.form.get("confirmation")
+        
 
-        password = request.form['password']
-        name = request.form['name']
-        email = request.form['email']
+            if not username:
+                # If username is missing, flash an apology message
+                flash("Missing username")
+                return redirect(url_for("register"))
+            elif not password or not confirmation:
+                # If either password or confirmation is missing, flash an apology message
+                flash("Missing password")
+                return redirect(url_for("register"))
+            elif password != confirmation:
+                # If passwords do not match, flash an apology message
+                flash("Passwords do not match")
+                return redirect(url_for("register"))
 
-        #ensure its an email
-        if not re.match(r'[^@]+@[^@]+\.[^@]+', email):
-            return render_template('apology.html', message='Please enter a valid email adress')
+            # Check whether there are similar usernames in the database
+            existing_user = db.execute("SELECT * FROM users WHERE username = ?", username)
+            if existing_user:
+                # If the username already exists, flash an apology message
+                flash("Username already exists")
+                return redirect(url_for("register"))
 
+            # Add user information to the users table after passing all checks
+            hashed_password = generate_password_hash(password)
+            db.execute(
+                "INSERT INTO users (username, hash) VALUES (?, ?)",
+                username,
+                hashed_password,
+            )
 
-        # Hash the password
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            # Redirect or flash a success message as needed
+            return redirect("/")
 
-        # Check if the password meets the requirements
-        if not re.match(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$', password):
-            # If the password does not meet the requirements, redirect to the apology message, invalid password page
-            return render_template('apology.html', message='Invalid password')
-
-        # Create a new user object using the form data
-        new_user = User(username=username, password=hashed_password, name=name, email=email)
-
-        # Save the new user to the database
-        db.session.add(new_user)
-        db.session.commit()
-
-        # Flash a success message and redirect to the login page
-        flash('Registration successful! Please log in.')
-        return redirect(url_for('login'))
-
-    # Render the registration page if it's a GET request or registration fails
-    return render_template('register.html')
+      else:
+            # Render the registration template for GET requests
+        return render_template("register.html")
 
 # Route for the login page
 @app.route('/login', methods=['GET', 'POST'])
@@ -117,26 +120,34 @@ def login():
         # If the request method is POST, process the form data
         
     if request.method == 'POST':
+        # Check if username and password were provided
+        if not username or not password:
+            return apology ("Please provide both username and password", 403)
         # Process login form data here
         username = request.form.get('username')
         password = request.form.get('password')
         
-        # Check if username and password were provided
-        if not username or not password:
-            return apology ("Please provide both username and password", '400')
-
-        # Retrieve the user object from the database
-        user = User.query.filter_by(username=username).first()
+    # Query database for username
+        rows = db.execute(
+                "SELECT * FROM users WHERE username = ?", request.form.get("username")
+            )
 
         # Hash the password and check
-        if user and bcrypt.checkpw(password.encode('utf-8'), user.password):
-            session['user_id'] = user.user_id
-            flash('Login successful!', '200')
-            return redirect(url_for('home'))
-        else:
-            flash('Invalid credentials, please try again or sign up first', '400')
-    return render_template('login.html', messages = get_flashed_messages())
+         # Ensure username exists and password is correct
+        if len(rows) != 1 or not check_password_hash(
+            rows[0]["hash"], request.form.get("password")
+        ):
+            return apology("invalid username and/or password", 403)
+        
 
+        # Remember which user has logged in
+        session["user_id"] = rows[0]["id"]
+
+         # Redirect user to home page
+        return redirect("/")
+    else:
+        return render_template("login.html")
+    
 # Route for logging out
 @app.route('/logout')
 @login_required  # Use the helper decorator to ensure the user is logged in
@@ -296,8 +307,7 @@ def send_periodic_summary():
 
     return "Periodic summary sent successfully!"
 
-with app.app_context():
-    db.create_all()
+
 
 
 if __name__ == '__main__':

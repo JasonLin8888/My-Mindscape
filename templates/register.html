@@ -3,36 +3,26 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Registration
+    Register
 {% endblock %}
 
 {% block main %}
-
-<!-- Registration Form -->
+   <!-- This is the registration form -->
 <form action="/register" method="post">
-    <!-- Input for entering username -->
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required>
-
-    <!-- Input for entering name -->
-    <label for="name">Name:</label>
-    <input type="text" id="name" name="name" required>
-
-    <!-- Input for entering email-->
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required>
-   
-
-    <!-- Input for entering password -->
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
-
-    <!-- Input for confirming password -->
-    <label for="confirm_password">Confirm Password:</label>
-    <input type="password" id="confirm_password" name="confirm_password" required>
-
-    <!-- Button to submit the form -->
-    <button type="submit">Register</button>
+    <!-- Username input field -->
+    <div class="form-group">
+        <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text">
+    </div>
+    <!-- Password input field -->
+    <div class="form-group">
+        <input autocomplete="off" class="form-control" name="password" placeholder="Password" type="password">
+    </div>
+    <!-- Password confirmation input field -->
+    <div class="form-group">
+        <input autocomplete="off" class="form-control" name="confirmation" placeholder="Password (again)" type="password">
+    </div>
+    <!-- Register button -->
+    <button class="btn btn-primary" type="submit">Register</button>
 </form>
 
 {% endblock %}
