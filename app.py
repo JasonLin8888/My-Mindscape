@@ -131,7 +131,7 @@ def login():
 
         # Query database for username
         rows = db.execute(
-            "SELECT * FROM users WHERE username = ?", request.form.get("username")
+            "SELECT * FROM User WHERE username = ?", request.form.get("username")
         )
 
         # Hash the password and check
