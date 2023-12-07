@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from datetime import timedelta
 from flask_mail import Message, Mail
+from flask_migrate import Migrate
 from io import BytesIO
 import os
 import bcrypt
@@ -15,6 +16,10 @@ import secrets
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mindscape.db'
+#initialize the database
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 mail = Mail(app)
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 465  # or 587
@@ -72,7 +77,7 @@ def register():
 
         password = request.form['password']
         name = request.form['name']
-        date_of_birth = request.form['date_of_birth']
+        email = request.form['email']
 
         # Hash the password
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
@@ -83,7 +88,7 @@ def register():
             return render_template('apology.html', message='Invalid password')
 
         # Create a new user object using the form data
-        new_user = User(username=username, password=hashed_password, name=name, date_of_birth=date_of_birth)
+        new_user = User(username=username, password=hashed_password, name=name, email=email)
 
         # Save the new user to the database
         db.session.add(new_user)
