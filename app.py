@@ -79,6 +79,11 @@ def register():
         name = request.form['name']
         email = request.form['email']
 
+        #ensure its an email
+        if not re.match(r'[^@]+@[^@]+\.[^@]+', email):
+            return render_template('apology.html', message='Please enter a valid email adress')
+
+
         # Hash the password
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
