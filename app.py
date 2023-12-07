@@ -51,11 +51,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///college_experience_tracker.db
 @app.route('/')
 @login_required  # Use the helper decorator to ensure the user is logged in
 def home():
-    # Retrieve the entries for the logged-in user
-    entries = mood.query.filter_by(user_id=session['user_id']).all()
-
     # Render the home page with the retrieved entries
-    return render_template('index.html', entries=entries)
+    return render_template('index.html')
 
 
 # Route for registration
@@ -118,7 +115,7 @@ def login():
     # Check if the user is already logged in
     if session.get('user_id'):
         # If the user is already logged in, redirect to the home page
-        return render_template(('home'))
+        return redirect(url_for('home'))
         # If the request method is POST, process the form data
 
     if request.method == 'POST':
@@ -142,15 +139,15 @@ def login():
 
         # Remember which user has logged in
         if rows and "user_id" in rows[0]:
-            session["id"] = rows[0]["user_id"]
+            session["user_id"] = rows[0]["user_id"]
         else:
             # Handle the case where 'rows' is empty or 'id' is not in 'rows[0]'
             print("No 'id' found in 'rows'")
 
         # Redirect user to home page
-        return redirect("/")
+        return redirect(url_for('home'))
     else:
-        return render_template("login.html")
+        return render_template("register.html")
 
 # Route for logging out
 @app.route('/logout')
@@ -316,7 +313,7 @@ def logout():
 
 if __name__ == '__main__':
     try:
-        app.run()
+        app.run(debug=True)
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         # You might want to log the error or handle it appropriately
