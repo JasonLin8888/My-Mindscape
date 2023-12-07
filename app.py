@@ -24,8 +24,7 @@ app.config['MAIL_USERNAME'] = 'MyMindScape@gmail.com'  # your email
 app.config['MAIL_PASSWORD'] = 'Copyright@Ian&Jason'  # your email password
 app.config['MAIL_DEFAULT_SENDER'] = 'MyMindScape@gmail.com'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///college_experience_tracker.db'
-#initialize the database
-db = SQLAlchemy(app)
+
 
 # Define the User model
 class User(db.Model):
@@ -33,7 +32,7 @@ class User(db.Model):
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     name = db.Column(db.String(100), nullable=False)
-    date_of_birth = db.Column(db.Date, nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
 
 # Define the mood model
 class mood(db.Model):
