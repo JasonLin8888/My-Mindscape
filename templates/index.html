@@ -1,19 +1,40 @@
 {% extends "layout.html" %}
+<!-- Extends the base layout template -->
 
 {% block title %}
     Home
 {% endblock %}
+<!-- Defines the title block with the value "Home" -->
 
 {% block main %}
-<!-- displays the profile -->
-<h1>Profile</h1>
-<p>Username: {{ session["user_id"] }}</p>
-<p>Name: {{ session["name"] }}</p>
+    <!-- Display dashboard content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Welcome to Your Dashboard</h1>
+                <p>This is your personalized dashboard.</p>
 
-<!--Dispaly the contents of mood.html, analytics.html and dashboard.html-->
-{% include "mood.html" %}
-{% include "analytics.html" %}
-{% include "dashboard.html" %}
+                <!-- Buttons to redirect to /mood and /analytics -->
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <a href="/mood" class="btn btn-primary me-md-2" role="button">Record Mood</a>
+                    <a href="/analytics" class="btn btn-success" role="button">View Analytics</a>
+                </div>
+
+                <!-- Display Mood History -->
+                <h2>Mood History</h2>
+                <ul>
+                    {% for entry in mood_history %}
+                        <li>
+                            {{ entry.date }} - {{ entry.description }} ({{ entry.daily_mood }})<br>
+                            Reflection: {{ entry.reflection }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+<!-- End of the main content block -->
 
 
 {% comment %} <p>Username: {{ session["user_id"] }}</p>

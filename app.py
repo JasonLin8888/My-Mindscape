@@ -205,32 +205,42 @@ def mood():
 @app.route('/analytics')
 @login_required
 def analytics():
-    # Retrieve the user's mood data from the database
-    user_id = session['user_id']
-    mood_data = mood.query.filter_by(user_id=user_id).all()
+    try:
+        # Retrieve the user's mood data from the database
+        user_id = session['user_id']
+        mood_data = mood.query.filter_by(user_id=user_id).all()
 
-    # Process mood data to extract relevant information for analytics
-    dates = [entry.date for entry in mood_data]
-    daily_moods = [entry.daily_mood for entry in mood_data]
+        # Process mood data to extract relevant information for analytics
+        dates = [entry.date for entry in mood_data]
+        daily_moods = [entry.daily_mood for entry in mood_data]
 
-    # Create a line chart using Matplotlib
-    plt.plot(dates, daily_moods)
-    plt.xlabel('Date')
-    plt.ylabel('Daily Mood')
-    plt.title('Mood Trends Over Time')
-    plt.xticks(rotation=45)
-    
-    # Save the plot to a BytesIO object
-    img = BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plt.close()
+        # Create a line chart using Matplotlib
+        plt.plot(dates, daily_moods)
+        plt.xlabel('Date')
+        plt.ylabel('Daily Mood')
+        plt.title('Mood Trends Over Time')
+        plt.xticks(rotation=45)
+        
+        # Save the plot to a BytesIO object
+        img = BytesIO()
+        plt.savefig(img, format='png')
+        img.seek(0)
+        plt.close()
 
-    # Convert the image to base64 for embedding in HTML
-    img_base64 = base64.b64encode(img.getvalue()).decode()
+        # Convert the image to base64 for embedding in HTML
+        img_base64 = base64.b64encode(img.getvalue()).decode()
 
-    # Pass the base64-encoded image to the template
-    return render_template('analytics.html', img_base64=img_base64)
+        # Pass the base64-encoded image to the template
+        return render_template('analytics.html', img_base64=img_base64)
+    except Exception as e:
+   
+        # Log the error
+        print(f"Error generating mood analytics image: {str(e)}")
+        # Flash an error message to be displayed in the template
+        flash("Error generating mood analytics. Please try again later.")
+        # Redirect to a placeholder page or handle the error as needed
+        return render_template('index.html')
+
 
 @app.route('/dashboard')
 @login_required
