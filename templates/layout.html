@@ -60,6 +60,12 @@
                     {{ get_flashed_messages() | join(" ") }}
                 </div>
             </header>
+        {% endif %}'
+        
+        {% if messages %}
+        <div id="flash-messages">
+            {{ messages[0] }}
+        </div>
         {% endif %}
 
         <!-- Content block that will be overridden by child pages -->

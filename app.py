@@ -106,7 +106,7 @@ def register():
         )
 
         # Commit the changes to the database
-        db.commit()
+        db.execute("COMMIT")
 
         # Redirect or flash a success message as needed
         return redirect("/")
