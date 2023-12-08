@@ -13,6 +13,7 @@ from validate_email_address import validate_email
 import base64
 
 app = Flask(__name__)
+
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
@@ -187,7 +188,7 @@ def record_moment():
 
 
 # Define the route to  mood
-@app.route('/mood', methods=['POST'])
+@app.route('/mood', methods=['GET', 'POST'])
 @login_required  # Ensure the user is logged in
 def mood():
     if request.method == 'POST':
@@ -324,4 +325,4 @@ def handle_error(e):
 # Catch errors
 if __name__ == '__main__':
     print("Reached app.run")
-    app.run(debug=True)
+    app.run()
