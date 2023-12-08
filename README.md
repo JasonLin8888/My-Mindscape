@@ -1,4 +1,4 @@
-MyMindScape
+MyMindScape https://youtu.be/mEDq3hHKarE
 
 MyMindScape is a web application that allows users to track their mood and record moments in a personal diary. This README provides a user's manual for the application.
 
