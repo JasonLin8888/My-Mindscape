@@ -9,6 +9,8 @@ from io import BytesIO
 import os
 import matplotlib.pyplot as plt
 from flask import render_template, flash
+from validate_email_address import validate_email
+
 import base64
 
 app = Flask(__name__)
@@ -78,6 +80,29 @@ def register():
                 elif password != confirmation:
                     flash("Passwords do not match")
                     return redirect(url_for("register"))
+                elif not email:
+                    flash("Missing email")
+                    return redirect(url_for("register"))
+                
+                #check if email is valid
+                if not validate_email(email):
+                    flash("Invalid email")
+                    return redirect(url_for("register"))
+                
+                #password must be at least 8 characters long and contain at least one number and one letter and one special character
+                if len(password) < 8:
+                    flash("Password must be at least 8 characters long")
+                    return redirect(url_for("register"))
+                elif not any(char.isdigit() for char in password):
+                    flash("Password must contain at least one number")
+                    return redirect(url_for("register"))
+                elif not any(char.isalpha() for char in password):
+                    flash("Password must contain at least one letter")
+                    return redirect(url_for("register"))
+                elif not any(not char.isalnum() for char in password):
+                    flash("Password must contain at least one special character")
+                    return redirect(url_for("register"))
+
 
                 # Check whether there are similar usernames in the database
                 existing_user = db.execute("SELECT * FROM User WHERE username = ?", username)
