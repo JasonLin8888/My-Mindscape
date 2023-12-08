@@ -180,8 +180,10 @@ def record_moment():
         db.session.commit()
         # Redirect to the home page after successful login
         return redirect(url_for('home'))
-    # Render the record moment page if it's a GET request
-    return render_template('record_moment.html')
+    
+    else:
+        # Render the record moment page if it's a GET request
+        return render_template('moment.html')
 
 
 # Define the route to  mood
@@ -207,8 +209,10 @@ def mood():
         except Exception as e:
             # Handle the exception
             print(f"Error adding mood to the database: {e}")
-            return apology("An Error Occurred", 403)
-
+            return apology("Error adding mood to the database", 403)
+    else:
+        # Render the record moment page if it's a GET request
+        return render_template('mood.html')
 
 
 # Route for sending periodic summaries
