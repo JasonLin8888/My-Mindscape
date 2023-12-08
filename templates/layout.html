@@ -30,20 +30,18 @@
         <!-- Common navigation or header content can go here -->
         <nav class="bg-light border navbar navbar-expand-md navbar-light">
             <div class="container-fluid">
-                <a class="navbar-brand" href="/"><span class="blue">MyMindscape</span></a>
+                <a class="navbar-brand" href="/">MyMindscape</a>
                 <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbar">
                     {% if session["user_id"] %} 
                         <ul class="navbar-nav me-auto mt-2">
-                            <li class="nav-item"><a class="nav-link {% if 'dashboard' in request.path %}active{% endif %}" href="/dashboard">Dashboard</a></li>
                             <li class="nav-item"><a class="nav-link {% if 'moment' in request.path %}active{% endif %}" href="/moment">Record a Moment!</a></li>
                             <li class="nav-item"><a class="nav-link {% if 'mood' in request.path %}active{% endif %}" href="/mood">How are you feeling?</a></li>
                             <li class="nav-item"><a class="nav-link {% if 'analytics' in request.path %}active{% endif %}" href="/analytics">See your analytics!</a></li>
                         </ul>
                         <ul class="navbar-nav ms-auto mt-2">
-                            <li class="nav-item"><a class="nav-link {% if 'profile' in request.path %}active{% endif %}" href="/profile">Profile Photo</a></li>
                             <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
                         </ul>
                     {% else %}

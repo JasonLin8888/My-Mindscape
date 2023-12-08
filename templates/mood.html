@@ -2,12 +2,14 @@
 
 {% extends "layout.html" %}
 
-{% block title %}Log Your Mood{% endblock %}
+{% block title %}
+    Log Your Mood
+{% endblock %}
 
 {% block content %}
     <h1>Log Your Mood</h1>
     <form action="/mood" method="post">
-        <div class = "form-group">
+        <div class = "mb-3">
             <label for="mood">Select Your Mood:</label>
             <select id="mood" name="mood" required>
                 <option value="happy">Happy</option>
@@ -18,7 +20,7 @@
             </select>
         </div>
 
-        <div class = "form-group">
+        <div class = "mb-3">
             <label for="intensity">Rate Your Mood (1-10):</label>
             <input type="number" id="intensity" name="intensity" min="1" max="10" required>
         </div>
@@ -32,7 +34,6 @@
             <input type="text" id="reflection" name="reflection" required>
         </div>
          <button class = "btn btn-primary" type="submit">Add Reflection</button>
-        
     </form>
 {% endblock %}
 
