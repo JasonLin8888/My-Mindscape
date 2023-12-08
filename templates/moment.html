@@ -1,20 +1,37 @@
-<!-- Form to record moments, extends layout.html -->
-
 {% extends "layout.html" %}
-
 {% block title %}
-    Record a Moment
+Record a Moment
 {% endblock %}
+    {% block main %}
+        <div>
+            <h1>Record a Moment</h1>
+        </div>
+        <p>Enter your moment:</p>
+        <form action="/moment" method="post">
+            <div class="form-group">
+                <label for="mood">Mood</label>
+                <select class="form-control" name="mood" id="mood">
+                    <option value="happy">Happy</option>
+                    <option value="neutral">Neutral</option>
+                    <option value="sad">Sad</option>
+                </select>
+            </div>
+            <div  class="form-group">
+                <label for="date">Date</label>
+                <input type="date" name="date" id="date" required placeholder="Date...">
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea class="form-control" name="description" id="description" required placeholder="Description..."></textarea>
+            </div>
+           
+            <div class="form-group">
+                <input type="text" name="date" id="date" required placeholder="Date...">
+            </div>
+            <div class="form-group">
+                <input type="text" name="description" id="description" required placeholder="Description...">
+            </div>
+            <button class="btn btn-primary" type="submit" >Record</button>
+        </form>
+    {% endblock %}
 
-{% block main %}
-    <h1>Record a Moment</h1>
-    <p>Enter your moment:</p>
-    <form action="/moment" method="post">
-        <input type="text" name="date" class="date" required placeholder="Date...">
-        <input type="text" name="description" class="description" required placeholder="Description...">
-        <button type="submit">Record</button>
-    </form>
-{% endblock %}
-
-
-<!-- Path: templates/moments.html -->

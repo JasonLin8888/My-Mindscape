@@ -1,0 +1,21 @@
+<!-- profile.html -->
+{% extends "layout.html" %}
+
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+    <h1>User Profile</h1>
+    <form method="post" enctype="multipart/form-data">
+        <!-- Form fields for other profile information -->
+        <label for="profile_picture">Profile Picture:</label>
+        <input type="file" name="profile_picture">
+        <button type="submit">Update Profile</button>
+    </form>
+    
+    {% if user.profile_picture_filename %}
+        <img src="{{ url_for('static', filename='uploads/' + user.profile_picture_filename) }}" alt="Profile Picture">
+    {% else %}
+        <p>No profile picture available.</p>
+    {% endif %}
+
+{% endblock %}

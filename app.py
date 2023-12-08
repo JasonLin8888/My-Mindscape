@@ -1,26 +1,33 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, get_flashed_messages
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from helpers import login_required, logout_required, apology
 from cs50 import SQL
-from datetime import datetime
+from datetime import datetime, timedelta
 from werkzeug.security import check_password_hash, generate_password_hash
-from datetime import timedelta
 from flask_mail import Message, Mail
-from flask_migrate import Migrate
 from flask_session import Session
 from io import BytesIO
+from flask_uploads import UploadSet, IMAGES, configure_uploads, UploadNotAllowed
+from flask import request, render_template, redirect, url_for, session
 import os
-import bcrypt
-import re
 import matplotlib.pyplot as plt
+from flask import render_template, flash
+from validate_email_address import validate_email
+
 import base64
-import secrets
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# initialize the database
+# Configure app to store uploaded profile pictures in the "uploads" folder
+app.config['UPLOADS_DEFAULT_DEST'] = 'static/uploads'
+# Configure app to accept only image files
+app.config['UPLOADED_PHOTOS_ALLOW'] = set(['png', 'jpg', 'jpeg', 'gif'])
+photos = UploadSet('photos', IMAGES)
+configure_uploads(app, photos)
+
+# Initialize the database
 db = SQL("sqlite:///mindscape.db")
 
 # Make sure API key is set
@@ -51,11 +58,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///college_experience_tracker.db
 @app.route('/')
 @login_required  # Use the helper decorator to ensure the user is logged in
 def home():
-    # Retrieve the entries for the logged-in user
-    # entries = mood.query.filter_by(user_id=session['user_id']).all()
-
-    # Render the home page with the retrieved entries
-    return render_template('index.html')
+   return render_template('index.html')
 
 
 # Route for registration
@@ -86,6 +89,29 @@ def register():
                 elif password != confirmation:
                     flash("Passwords do not match")
                     return redirect(url_for("register"))
+                elif not email:
+                    flash("Missing email")
+                    return redirect(url_for("register"))
+                
+                #check if email is valid
+                if not validate_email(email):
+                    flash("Invalid email")
+                    return redirect(url_for("register"))
+                
+                #password must be at least 8 characters long and contain at least one number and one letter and one special character
+                if len(password) < 8:
+                    flash("Password must be at least 8 characters long")
+                    return redirect(url_for("register"))
+                elif not any(char.isdigit() for char in password):
+                    flash("Password must contain at least one number")
+                    return redirect(url_for("register"))
+                elif not any(char.isalpha() for char in password):
+                    flash("Password must contain at least one letter")
+                    return redirect(url_for("register"))
+                elif not any(not char.isalnum() for char in password):
+                    flash("Password must contain at least one special character")
+                    return redirect(url_for("register"))
+
 
                 # Check whether there are similar usernames in the database
                 existing_user = db.execute("SELECT * FROM User WHERE username = ?", username)
@@ -152,6 +178,33 @@ def login():
     else:
         return render_template("register.html")
 
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        user_id = session['user_id']
+        
+        # Retrieve form data
+        profile_picture = request.files['profile_picture']
+
+        # Handle profile picture upload
+        if profile_picture:
+            try:
+                # Save the profile picture to the "uploads" folder
+                filename = photos.save(profile_picture)
+                
+                # Update the user's profile picture filename in the database
+                db.execute("UPDATE User SET profile_picture_filename = ? WHERE id = ?", filename, user_id)
+            except UploadNotAllowed:
+                flash("Invalid file type. Please upload an image.")
+                return redirect(url_for("profile"))
+
+        # Redirect to the home page 
+        return redirect(url_for('home'))
+
+    # Render the user's profile page
+    return render_template('profile.html')
+
 # Route for logging out
 @app.route('/logout')
 @login_required  # Use the helper decorator to ensure the user is logged in
@@ -163,164 +216,154 @@ def logout():
 
 
 
-# # Route for recording a moment
-# @app.route('/moment', methods=['GET', 'POST'])
-# @login_required  # Use the helper decorator to ensure the user is logged in
-# def record_moment():
-#    # get input from the form and record it in the mood table in the database
-#     if request.method == 'POST':
-#         # Process the form data here
-#         date = request.form['date']
-#         description = request.form['description']
-#         # Create a new entry object using the form data
-#         new_entry = mood(user_id=session['user_id'], date=date, description=description)
-#         # Add the new entry to the database
-#         db.session.add(new_entry)
-#         db.session.commit()
-#         # Redirect to the home page after successful login
-#         return redirect(url_for('home'))
-#     # Render the record moment page if it's a GET request
-#     return render_template('record_moment.html')
+# Route for recording a moment
+@app.route('/moment', methods=['GET', 'POST'])
+@login_required  # Use the helper decorator to ensure the user is logged in
+def record_moment():
+   # get input from the form and record it in the mood table in the database
+    if request.method == 'POST':
+        # Process the form data here
+        date = request.form['date']
+        description = request.form['description']
+        # Create a new entry object using the form data
+        new_entry = mood(user_id=session['user_id'], date=date, description=description)
+        # Add the new entry to the database
+        db.session.add(new_entry)
+        db.session.commit()
+        # Redirect to the home page after successful login
+        return redirect(url_for('home'))
+    # Render the record moment page if it's a GET request
+    return render_template('record_moment.html')
 
-# # Define the route to  mood
-# @app.route('/mood', methods=['POST'])
-# @login_required  # Ensure the user is logged in
-# def mood():
-#     if request.method == 'POST':
-#         # Retrieve the mood and intensity values from the form submission
-#         selected_mood = request.form['mood']
-#         intensity = int(request.form['intensity'])
-
-#         # Perform any necessary processing or validation
-
-#         # Create a new mood entry in the database
-#         new_entry = mood(user_id=session['user_id'], mood=selected_mood, intensity=intensity, date=datetime.now())
-#         db.session.add(new_entry)
-#         db.session.commit()
-
-#         # Redirect to the home page or another appropriate page
-#         return redirect(url_for('home'))
+# Define the route to  mood
+@app.route('/mood', methods=['POST'])
+@login_required  # Ensure the user is logged in
+def mood():
+    if request.method == 'POST':
+        # Retrieve the mood and intensity values from the form submission
+        selected_mood = request.form['mood']
+        intensity = int(request.form['intensity'])
 
 
-# @app.route('/analytics')
-# @login_required
-# def analytics():
-#     # Retrieve the user's mood data from the database
-#     user_id = session['user_id']
-#     mood_data = mood.query.filter_by(user_id=user_id).all()
+        # Retrieve user id and add current mood to existing database using SQL
+        db.execute("INSERT INTO mood (user_id, mood, intensity) VALUES (?, ?, ?)",
+                     session['user_id'], selected_mood, intensity)
+        db.execute("COMMIT")
+        # Redirect to the home page or another appropriate page
+        return redirect(url_for('home'))
 
-#     # Process mood data to extract relevant information for analytics
-#     dates = [entry.date for entry in mood_data]
-#     daily_moods = [entry.daily_mood for entry in mood_data]
+# Route for sending periodic summaries
+@app.route('/send_periodic_summary', methods=['GET'])
+@login_required
+def send_periodic_summary():
+         # Define function get_mood_data_for_period
+     def get_mood_data_for_period(user_id, period):
+        # Retrieve the user's mood data from the database
+        mood_data = db.execute("SELECT * FROM mood WHERE user_id = ?", user_id)
+        # Calculate the start and end dates for the period
+        if period == 'week':
+            start_date = datetime.now() - timedelta(days=7)
+            end_date = datetime.now()
+        elif period == 'month':
+            start_date = datetime.now() - timedelta(days=30)
+            end_date = datetime.now()
+        else:
+            start_date = datetime.now() - timedelta(days=365)
+            end_date = datetime.now()
 
-#     # Create a line chart using Matplotlib
-#     plt.plot(dates, daily_moods)
-#     plt.xlabel('Date')
-#     plt.ylabel('Daily Mood')
-#     plt.title('Mood Trends Over Time')
-#     plt.xticks(rotation=45)
-    
-#     # Save the plot to a BytesIO object
-#     img = BytesIO()
-#     plt.savefig(img, format='png')
-#     img.seek(0)
-#     plt.close()
+        # Extract the mood data for the period
+        mood_data_for_period = [entry for entry in mood_data if start_date <= entry.date <= end_date]
 
-#     # Convert the image to base64 for embedding in HTML
-#     img_base64 = base64.b64encode(img.getvalue()).decode()
+        return mood_data_for_period
 
-#     # Pass the base64-encoded image to the template
-#     return render_template('analytics.html', img_base64=img_base64)
+    # Define function format_mood_summary
+     def format_mood_summary(mood_data):
+        # Process the mood data to extract relevant information for the summary
+        dates = [entry.date for entry in mood_data]
+        daily_moods = [entry.intensity for entry in mood_data]
 
-# @app.route('/dashboard')
-# @login_required
-# def dashboard():
-#     # Retrieve the user's mood history from the database
-#     user_id = session['user_id']
-#     mood_history = mood.query.filter_by(user_id=user_id).order_by(mood.date.desc()).limit(10).all()
+        # Calculate the average mood for the period
+        average_mood = sum(daily_moods) / len(daily_moods)
 
-#     # Pass the mood data to the template
-#     return render_template('dashboard.html', mood_history=mood_history)
+        # Calculate the mood for the most recent day
+        current_mood = daily_moods[-1]
 
-# # define function get_mood_data_for_period
-# def get_mood_data_for_period(user_id, period):
-#     # Retrieve the user's mood data from the database
-#     mood_data = mood.query.filter_by(user_id=user_id).all()
+        # Calculate the mood for the previous day
+        previous_mood = daily_moods[-2]
 
-#     # Calculate the start and end dates for the period
-#     if period == 'week':
-#         start_date = datetime.now() - timedelta(days=7)
-#         end_date = datetime.now()
-#     elif period == 'month':
-#         start_date = datetime.now() - timedelta(days=30)
-#         end_date = datetime.now()
-#     else:
-#         start_date = datetime.now() - timedelta(days=365)
-#         end_date = datetime.now()
+        # Calculate the mood change between the previous day and the current day
+        mood_change = current_mood - previous_mood
 
-#     # Extract the mood data for the period
-#     mood_data_for_period = [entry for entry in mood_data if start_date <= entry.date <= end_date]
+        # Create a function to send email, using Flask-Mail. Body should be formatted summary, and title should be weekly mood summary
 
-#     return mood_data_for_period
+    # Define function send_email
+     def send_email(to, subject, template):
+        msg = Message(
+            subject,
+            recipients=[to],
+            html=template,
+            sender=app.config['MAIL_DEFAULT_SENDER']
+        )
+        mail.send(msg)
+    # Assuming you have a function to get mood data for the past week or month
+     mood_data = get_mood_data_for_period(session['user_id'], 'week')  # You need to implement this function
 
-# # define function format_mood_summary
-# def format_mood_summary(mood_data):
-#     # Process the mood data to extract relevant information for the summary
-#     dates = [entry.date for entry in mood_data]
-#     daily_moods = [entry.intensity for entry in mood_data]
+    # Assuming you have a function to format mood data for display
+     formatted_summary = format_mood_summary(mood_data)  # You need to implement this function
 
-#     # Calculate the average mood for the period
-#     average_mood = sum(daily_moods) / len(daily_moods)
+    # Assuming you have a function to send an email using Flask-Mail
+     send_email(session['user_email'], 'Weekly Mood Summary', formatted_summary)  # You need to implement this function
 
-#     # Calculate the mood for the most recent day
-#     current_mood = daily_moods[-1]
-
-#     # Calculate the mood for the previous day
-#     previous_mood = daily_moods[-2]
-
-#     # Calculate the mood change between the previous day and the current day
-#     mood_change = current_mood - previous_mood
-
-#     #create a funtion to send email, using flask mail, body should be formatted summary, and title should be weekly mood summary
-
-# # define function send_email
-
-# def send_email(to, subject, template):
-#     msg = Message(
-#         subject,
-#         recipients=[to],
-#         html=template,
-#         sender=app.config['MAIL_DEFAULT_SENDER']
-#     )
-#     mail.send(msg)
-    
+     return "Periodic summary sent successfully!"
 
 
-# # Route for sending periodic summaries
-# @app.route('/send_periodic_summary', methods=['GET'])
-# @login_required
-# def send_periodic_summary():
-#     # Assuming you have a function to get mood data for the past week or month
-#     mood_data = get_mood_data_for_period(session['user_id'], 'week')  # You need to implement this function
+@app.route('/analytics')
+@login_required
+def analytics():
+    try:
+        # Retrieve the user's mood data from the database using SQL
+        mood_data = db.execute("SELECT * FROM mood WHERE user_id = ?", session['user_id'])
+     
 
-#     # Assuming you have a function to format mood data for display
-#     formatted_summary = format_mood_summary(mood_data)  # You need to implement this function
+        # Process mood data to extract relevant information for analytics
+        dates = [entry.date for entry in mood_data]
+        daily_moods = [entry.selected_mood for entry in mood_data]
 
-#     # Assuming you have a function to send an email using Flask-Mail
-#     send_email(session['user_email'], 'Weekly Mood Summary', formatted_summary)  # You need to implement this function
+        # Create a line chart using Matplotlib
+        plt.plot(dates, daily_moods)
+        plt.xlabel('Date')
+        plt.ylabel('Daily Mood')
+        plt.title('Mood Trends Over Time')
+        plt.xticks(rotation=45)
 
-#     return "Periodic summary sent successfully!"
+        # Save the plot to a BytesIO object
+        img = BytesIO()
+        plt.savefig(img, format='png')
+        img.seek(0)
+        plt.close()
+
+        # Convert the image to base64 for embedding in HTML
+        img_base64 = base64.b64encode(img.getvalue()).decode()
+
+        # Pass the base64-encoded image to the template
+        return render_template('analytics.html', img_base64=img_base64)
+    except Exception as e:
+        # Log the error
+        print(f"Error generating mood analytics image: {str(e)}")
+        # Flash an error message to be displayed in the template
+        flash("Error generating mood analytics. Please try again later.")
+        # Redirect to a placeholder page or handle the error as needed
+        return render_template('analytics_error.html')
 
 
 
 
+# Catch errors
 if __name__ == '__main__':
+    print("Reached app.run")
     try:
         app.run(debug=True)
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         # You might want to log the error or handle it appropriately
         render_template('apology.html', message='An error occurred')
-
-
-
