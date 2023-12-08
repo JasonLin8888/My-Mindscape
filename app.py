@@ -161,7 +161,7 @@ def logout():
     # Clear the session data
     session.clear()
     # Redirect to the login page after logout
-    return redirect(url_for('login'))
+    return redirect(url_for('logout'))
 
 
 # Route for recording a moment
