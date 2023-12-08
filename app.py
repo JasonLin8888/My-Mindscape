@@ -6,11 +6,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_mail import Message, Mail
 from flask_session import Session
 from io import BytesIO
-from flask_uploads import UploadSet, IMAGES, configure_uploads, UploadNotAllowed
-from flask import request, render_template, redirect, url_for, session
 import os
 import matplotlib.pyplot as plt
-from flask import render_template, flash
 from validate_email_address import validate_email
 
 import base64
@@ -20,13 +17,6 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Configure app to store uploaded profile pictures in the "uploads" folder
-app.config['UPLOADS_DEFAULT_DEST'] = 'static/uploads'
-# Configure app to accept only image files
-app.config['UPLOADED_PHOTOS_ALLOW'] = set(['png', 'jpg', 'jpeg', 'gif'])
-photos = UploadSet('photos', IMAGES)
-configure_uploads(app, photos)
-
 # Initialize the database
 db = SQL("sqlite:///mindscape.db")
 
@@ -34,7 +24,8 @@ db = SQL("sqlite:///mindscape.db")
 os.environ["API_KEY"] = "sk_fbakoshg73nmak7379sr"
 if not os.environ.get("API_KEY"):
     raise RuntimeError("API_KEY not set")
-
+    
+    
 @app.after_request
 def after_request(response):
     """Ensure responses aren't cached"""
@@ -69,69 +60,53 @@ def register():
 
     # Check if the incoming request method is POST
     if request.method == "POST":
-        # Start a transaction
-        try:
-            with db.execute("BEGIN"):
-                # Retrieve the values submitted in the form: username, password, and confirmation
-                name = request.form.get("name")
-                username = request.form.get("username")
-                password = request.form.get("password")
-                confirmation = request.form.get("confirmation")
-                email = request.form.get("email")
+        # Retrieve the values submitted in the form: username, password, and confirmation
+        name = request.form.get("name")
+        username = request.form.get("username")
+        password = request.form.get("password")
+        confirmation = request.form.get("confirmation")
+        email = request.form.get("email")
 
-                # If username is missing, flash an apology message
-                if not username:
-                    flash("Missing username")
-                    return redirect(url_for("register"))
-                elif not password or not confirmation:
-                    flash("Missing password")
-                    return redirect(url_for("register"))
-                elif password != confirmation:
-                    flash("Passwords do not match")
-                    return redirect(url_for("register"))
-                elif not email:
-                    flash("Missing email")
-                    return redirect(url_for("register"))
-                
-                #check if email is valid
-                if not validate_email(email):
-                    flash("Invalid email")
-                    return redirect(url_for("register"))
-                
-                #password must be at least 8 characters long and contain at least one number and one letter and one special character
-                if len(password) < 8:
-                    flash("Password must be at least 8 characters long")
-                    return redirect(url_for("register"))
-                elif not any(char.isdigit() for char in password):
-                    flash("Password must contain at least one number")
-                    return redirect(url_for("register"))
-                elif not any(char.isalpha() for char in password):
-                    flash("Password must contain at least one letter")
-                    return redirect(url_for("register"))
-                elif not any(not char.isalnum() for char in password):
-                    flash("Password must contain at least one special character")
-                    return redirect(url_for("register"))
+        # If username is missing, flash an apology message
+        if not username:
+            return apology("Missing Username", 400)
+        elif not password:
+            return apology("Missing Password", 400)                
+        elif not confirmation:
+            return apology("Missing Password Confirmation", 400)
+        elif password != confirmation:
+            return apology("Passwords Do Not Match", 400)
+        elif not email:
+            return apology("Missing Email", 400)
+        
+        #check if email is valid
+        if not validate_email(email):
+            return apology("Invalid Email", 400)
+        
+        #password must be at least 8 characters long and contain at least one number and one letter and one special character
+        if len(password) < 8:
+            return apology("Password must be at least 8 characters long", 400) 
+        elif not any(char.isdigit() for char in password):
+            return apology("Password must contain at least one number", 400) 
+        elif not any(char.isalpha() for char in password):
+            return apology("Password must contain at least one letter", 400) 
+        elif not any(not char.isalnum() for char in password):
+            return apology("Password must contain at least one special character", 400) 
 
 
-                # Check whether there are similar usernames in the database
-                existing_user = db.execute("SELECT * FROM User WHERE username = ?", username)
+        # Check whether there are similar usernames in the database
+        existing_user = db.execute("SELECT * FROM User WHERE username = ?", username)
 
-                # If the username already exists, flash an apology message
-                if existing_user:
-                    flash("Username already exists")
-                    return redirect(url_for("register"))
+        # If the username already exists, flash an apology message
+        if existing_user:
+            return apology("Username already exists", 400)
 
-                # Add user information to the users table after passing all checks
-                db.execute("INSERT INTO User (name, username, password, email) VALUES (?, ?, ?, ?)",
-                           name, username, generate_password_hash(password), email)
-                db.commit()
-                return redirect(url_for("register"))
-        except Exception as e:
-            db.execute("ROLLBACK")
-            print(f"An error occurred: {str(e)}")
-            # You might want to log the error or handle it appropriately
-            return render_template('apology.html', message='An error occurred')
-
+        # Add user information to the users table after passing all checks
+        db.execute("INSERT INTO User (name, username, password, email) VALUES (?, ?, ?, ?)",
+                    name, username, generate_password_hash(password), email)
+        db.execute("COMMIT")
+        return redirect(url_for("login"))
+        
     else:
         # Render the registration template for GET requests
         return render_template("register.html")
@@ -176,34 +151,8 @@ def login():
         # Redirect user to home page
         return redirect(url_for('home'))
     else:
-        return render_template("register.html")
+        return render_template("login.html")
 
-@app.route('/profile', methods=['GET', 'POST'])
-@login_required
-def profile():
-    if request.method == 'POST':
-        user_id = session['user_id']
-        
-        # Retrieve form data
-        profile_picture = request.files['profile_picture']
-
-        # Handle profile picture upload
-        if profile_picture:
-            try:
-                # Save the profile picture to the "uploads" folder
-                filename = photos.save(profile_picture)
-                
-                # Update the user's profile picture filename in the database
-                db.execute("UPDATE User SET profile_picture_filename = ? WHERE id = ?", filename, user_id)
-            except UploadNotAllowed:
-                flash("Invalid file type. Please upload an image.")
-                return redirect(url_for("profile"))
-
-        # Redirect to the home page 
-        return redirect(url_for('home'))
-
-    # Render the user's profile page
-    return render_template('profile.html')
 
 # Route for logging out
 @app.route('/logout')
@@ -213,7 +162,6 @@ def logout():
     session.clear()
     # Redirect to the login page after logout
     return redirect(url_for('login'))
-
 
 
 # Route for recording a moment
@@ -235,22 +183,33 @@ def record_moment():
     # Render the record moment page if it's a GET request
     return render_template('record_moment.html')
 
+
 # Define the route to  mood
 @app.route('/mood', methods=['POST'])
 @login_required  # Ensure the user is logged in
 def mood():
     if request.method == 'POST':
-        # Retrieve the mood and intensity values from the form submission
-        selected_mood = request.form['mood']
-        intensity = int(request.form['intensity'])
+        try:
+            # Retrieve the mood and intensity values from the form submission
+            selected_mood = request.form['mood']
+            intensity = int(request.form['intensity'])
+
+            # Retrieve user id and add current mood to the existing database using SQL
+            db.execute("INSERT INTO mood (user_id, mood, intensity) VALUES (?, ?, ?)",
+                    (session['user_id'], selected_mood, intensity))
+
+            # Commit changes to the database
+            db.commit()
+
+            # Redirect to the home page 
+            return redirect(url_for('home'))
+
+        except Exception as e:
+            # Handle the exception
+            print(f"Error adding mood to the database: {e}")
+            return apology("An Error Occurred", 403)
 
 
-        # Retrieve user id and add current mood to existing database using SQL
-        db.execute("INSERT INTO mood (user_id, mood, intensity) VALUES (?, ?, ?)",
-                     session['user_id'], selected_mood, intensity)
-        db.execute("COMMIT")
-        # Redirect to the home page or another appropriate page
-        return redirect(url_for('home'))
 
 # Route for sending periodic summaries
 @app.route('/send_periodic_summary', methods=['GET'])
@@ -321,49 +280,44 @@ def send_periodic_summary():
 @login_required
 def analytics():
     try:
-        # Retrieve the user's mood data from the database using SQL
-        mood_data = db.execute("SELECT * FROM mood WHERE user_id = ?", session['user_id'])
+        mood_data = db.execute("SELECT * FROM mood WHERE user_id = ?", (session['user_id'],))
+    except Exception as e:
+        # Handles the exception
+        print(f"Error retrieving mood data: {e}")
+        mood_data = []
      
 
-        # Process mood data to extract relevant information for analytics
-        dates = [entry.date for entry in mood_data]
-        daily_moods = [entry.selected_mood for entry in mood_data]
+    # Process mood data to extract relevant information for analytics
+    dates = [entry.date for entry in mood_data]
+    daily_moods = [entry.selected_mood for entry in mood_data]
 
-        # Create a line chart using Matplotlib
-        plt.plot(dates, daily_moods)
-        plt.xlabel('Date')
-        plt.ylabel('Daily Mood')
-        plt.title('Mood Trends Over Time')
-        plt.xticks(rotation=45)
+    # Create a line chart using Matplotlib
+    plt.plot(dates, daily_moods)
+    plt.xlabel('Date')
+    plt.ylabel('Daily Mood')
+    plt.title('Mood Trends Over Time')
+    plt.xticks(rotation=45)
 
-        # Save the plot to a BytesIO object
-        img = BytesIO()
-        plt.savefig(img, format='png')
-        img.seek(0)
-        plt.close()
+    # Save the plot to a BytesIO object
+    img = BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+    plt.close()
 
-        # Convert the image to base64 for embedding in HTML
-        img_base64 = base64.b64encode(img.getvalue()).decode()
+    # Convert the image to base64 for embedding in HTML
+    img_base64 = base64.b64encode(img.getvalue()).decode()
 
-        # Pass the base64-encoded image to the template
-        return render_template('analytics.html', img_base64=img_base64)
-    except Exception as e:
-        # Log the error
-        print(f"Error generating mood analytics image: {str(e)}")
-        # Flash an error message to be displayed in the template
-        flash("Error generating mood analytics. Please try again later.")
-        # Redirect to a placeholder page or handle the error as needed
-        return render_template('analytics_error.html')
+    # Pass the base64-encoded image to the template
+    return render_template('analytics.html', img_base64=img_base64)
 
 
-
+# Error handler for all exceptions
+@app.errorhandler(Exception)
+def handle_error(e):
+    print(f"An error occurred: {str(e)}")
+    return apology("An Error Occurred", 403)
 
 # Catch errors
 if __name__ == '__main__':
     print("Reached app.run")
-    try:
-        app.run(debug=True)
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
-        # You might want to log the error or handle it appropriately
-        render_template('apology.html', message='An error occurred')
+    app.run(debug=True)
