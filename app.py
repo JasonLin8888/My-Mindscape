@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_mail import Message, Mail
 from flask_session import Session
+from datetime import datetime
 from io import BytesIO
 import os
 import matplotlib.pyplot as plt
@@ -168,20 +169,34 @@ def logout():
 # Route for recording a moment
 @app.route('/moment', methods=['GET', 'POST'])
 @login_required  # Use the helper decorator to ensure the user is logged in
-def record_moment():
-   # get input from the form and record it in the mood table in the database
+def moment():
     if request.method == 'POST':
-        # Process the form data here
-        date = request.form['date']
-        description = request.form['description']
-        # Create a new entry object using the form data
-        new_entry = mood(user_id=session['user_id'], date=date, description=description)
-        # Add the new entry to the database
-        db.session.add(new_entry)
-        db.session.commit()
-        # Redirect to the home page after successful login
-        return redirect(url_for('home'))
-    
+        try:
+            # Process the form data
+            date_str = request.form['date']
+            description = request.form['description']
+
+            # Validate and convert the date string to a datetime object
+            date = datetime.strptime(date_str, '%Y-%m-%d')
+
+            # Create a new entry object using the form data
+            new_entry = mood(user_id=session['user_id'], date=date, description=description)
+
+            # Add the new entry to the database
+            db.session.add(new_entry)
+            db.session.commit()
+
+            # Flash a success message
+            flash('Moment recorded successfully!', 'success')
+
+            # Redirect to the home page after successful recording
+            return redirect(url_for('home'))
+
+        except Exception as e:
+            # Handle validation errors or database issues
+            flash(f'Error recording moment: {str(e)}', 'danger')
+            return redirect(url_for('record_moment'))
+
     else:
         # Render the record moment page if it's a GET request
         return render_template('moment.html')

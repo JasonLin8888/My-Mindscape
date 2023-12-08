@@ -12,7 +12,7 @@
     <form action="/moment" method="post">
         <div class="form-group">
             <label for="mood">Mood</label>
-            <select class="form-control" name="mood" id="mood">
+            <select class="form-control" name="mood" class="mood">
                 <option value="happy">Happy</option>
                 <option value="neutral">Neutral</option>
                 <option value="sad">Sad</option>
@@ -25,13 +25,6 @@
         <div class="form-group">
             <label for="description">Description</label>
             <textarea class="form-control" name="description" id="description" required placeholder="Description..."></textarea>
-        </div>
-        
-        <div class="form-group">
-            <input type="text" name="date" id="date" required placeholder="Date...">
-        </div>
-        <div class="form-group">
-            <input type="text" name="description" id="description" required placeholder="Description...">
         </div>
         <button class="btn btn-primary" type="submit" >Record</button>
     </form>
