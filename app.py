@@ -6,6 +6,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_mail import Message, Mail
 from flask_session import Session
 from io import BytesIO
+from flask_uploads import UploadSet, IMAGES, configure_uploads, UploadNotAllowed
+from flask import request, render_template, redirect, url_for, session
 import os
 import matplotlib.pyplot as plt
 from flask import render_template, flash
@@ -17,6 +19,13 @@ app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+
+# Configure app to store uploaded profile pictures in the "uploads" folder
+app.config['UPLOADS_DEFAULT_DEST'] = 'static/uploads'
+# Configure app to accept only image files
+app.config['UPLOADED_PHOTOS_ALLOW'] = set(['png', 'jpg', 'jpeg', 'gif'])
+photos = UploadSet('photos', IMAGES)
+configure_uploads(app, photos)
 
 # Initialize the database
 db = SQL("sqlite:///mindscape.db")
@@ -168,6 +177,33 @@ def login():
         return redirect(url_for('home'))
     else:
         return render_template("register.html")
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        user_id = session['user_id']
+        
+        # Retrieve form data
+        profile_picture = request.files['profile_picture']
+
+        # Handle profile picture upload
+        if profile_picture:
+            try:
+                # Save the profile picture to the "uploads" folder
+                filename = photos.save(profile_picture)
+                
+                # Update the user's profile picture filename in the database
+                db.execute("UPDATE User SET profile_picture_filename = ? WHERE id = ?", filename, user_id)
+            except UploadNotAllowed:
+                flash("Invalid file type. Please upload an image.")
+                return redirect(url_for("profile"))
+
+        # Redirect to the home page 
+        return redirect(url_for('home'))
+
+    # Render the user's profile page
+    return render_template('profile.html')
 
 # Route for logging out
 @app.route('/logout')
