@@ -51,7 +51,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///college_experience_tracker.db
 @app.route('/')
 @login_required  # Use the helper decorator to ensure the user is logged in
 def home():
-   return render_template('index.html')
+    user_data = db.execute("SELECT name FROM User WHERE user_id = ? ", session["user_id"])
+    if user_data:
+        user_data = user_data[0]
+    else:
+        user_data = "Name Not Found"
+    if user_data:
+        return render_template('index.html', name=user_data)
+    else:
+        return render_template('index.html', name="Name Not Found")
 
 
 # Route for registration
@@ -106,7 +114,7 @@ def register():
         # Add user information to the users table after passing all checks
         db.execute("INSERT INTO User (name, username, password, email) VALUES (?, ?, ?, ?)",
                     name, username, generate_password_hash(password), email)
-        db.execute("COMMIT")
+        # db.commit()
         return redirect(url_for("login"))
         
     else:
@@ -163,7 +171,7 @@ def logout():
     # Clear the session data
     session.clear()
     # Redirect to the login page after logout
-    return redirect(url_for('logout'))
+    return render_template("logout.html")
 
 
 # Route for recording a moment
