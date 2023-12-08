@@ -53,7 +53,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///college_experience_tracker.db
 def home():
     user_data = db.execute("SELECT name FROM User WHERE user_id = ?", session["user_id"])
     if user_data:
-        print("user_data:", user_data)
         if user_data == [{'name': ''}]:
             user_data = user_data[0]['name']
         else:
@@ -188,6 +187,7 @@ def moment():
             date_str = request.form['date']
             description = request.form['description']
 
+            
             # Validate and convert the date string to a datetime object
             date = datetime.strptime(date_str, '%Y-%m-%d')
 
@@ -199,7 +199,7 @@ def moment():
             db.session.commit()
 
             # Flash a success message
-            flash('Moment recorded successfully!', 'success')
+            flash('Moment recorded successfully!')
 
             # Redirect to the home page after successful recording
             return redirect(url_for('home'))
