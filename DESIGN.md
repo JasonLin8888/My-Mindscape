@@ -9,7 +9,7 @@ Technologies Used
 
 Flask
 
-Flask is a lightweight web framework for Python that was used to build the backend of the MyMindscape app. It handles routing, request handling, and integrates with other libraries.
+This is a lightweight web framework for Python that was used to build the backend of the MyMindscape app. It handles routing, request handling, and integrates with other libraries.
 
 CS50 Library
 
@@ -23,9 +23,6 @@ Flask-Session
 
 Flask-Session is an extension for managing user sessions in Flask applications. It is employed to keep track of user logins and ensure certain routes are accessible only to logged-in users.
 
-Flask-Uploads (Not Used)
-
-While initially considered, Flask-Uploads was not used in the final implementation. This library facilitates file uploads in Flask applications. In the context of MyMindscape, it could be utilized for handling profile picture uploads.
 
 Matplotlib
 
@@ -69,11 +66,9 @@ Future Enhancements
 
 1.Advanced Analytics: Incorporate more sophisticated analytics tools or machine learning models to provide users with deeper insights into their mood patterns.
 
-2.Flask-Uploads Integration: Implement Flask-Uploads for handling profile picture uploads, providing users with a more interactive and personalized experience.
+2.User Settings: Expand user profile customization options, allowing users to update their information and preferences.
 
-3.User Settings: Expand user profile customization options, allowing users to update their information and preferences.
-
-4.Improved Frontend: Enhance the user interface with more interactive elements and a modern design.
+3.Improved Frontend: Enhance the user interface with more interactive elements and a modern design.
 
 Conclusion
 
