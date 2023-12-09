@@ -1,5 +1,7 @@
 MyMindscape Project
 
+Youtube Link: https://youtu.be/c880dVYMAi4
+
 Introduction
 
 Welcome to Mindscape, a web application designed to help users track and reflect on their daily moments and moods. This documentation serves as a user's manual, providing clear instructions on how to compile, configure, and use the Mindscape project. Whether you're a new user looking to get started or a developer exploring the project structure, this guide will help you navigate through the application.
