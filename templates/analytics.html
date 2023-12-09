@@ -1,24 +1,30 @@
 {% extends "layout.html" %}
 
-{% block title %}
-    Analytics
-{% endblock %}
+{% block title %}Analytics{% endblock %}
 
 {% block main %}
     <h1>Your Analytics</h1>
-    {% if dates %}
+    {% if not dates %}
+        <p>No Mood Data</p>
+    {% else %}
         <canvas id="moodChart" width="400" height="200"></canvas>
 
         <script>
-            // Your Chart.js script here
             var ctx = document.getElementById('moodChart').getContext('2d');
+            var chartDates = {{ dates | tojson | safe | replace("'", "\'") }};
+            var chartData = {{ daily_moods | tojson | safe | replace("'", "\'") }};
+
+            
+            // Convert date strings to JavaScript Date objects
+            chartDates = chartDates.map(date => new Date(date));
+
             var chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: {{ dates | tojson | safe }},
+                    labels: chartDates,
                     datasets: [{
                         label: 'Mood Trends Over Time',
-                        data: {{ daily_moods | tojson | safe }},
+                        data: chartData,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 1,
                         fill: false
@@ -29,7 +35,7 @@
                         x: {
                             type: 'time', // Configure x-axis as time
                             time: {
-                                unit: 'day', // Adjust this based on your data density
+                                unit: 'day', // x-axis unit
                             },
                             title: {
                                 display: true,
@@ -38,7 +44,7 @@
                         },
                         y: {
                             min: 1,
-                            max: 10
+                            max: 10,
                             title: {
                                 display: true,
                                 text: 'Mood',
@@ -48,7 +54,5 @@
                 }
             });
         </script>
-    {% else %}
-        <p>No Current Data For Moods</p>
     {% endif %}
 {% endblock %}
