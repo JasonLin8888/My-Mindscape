@@ -61,17 +61,10 @@ def home():
             user_data = ", " + user_data[0]['name']
     else:
         user_data = "Name Not Found"
-<<<<<<< HEAD
-    if user_data:
-        return render_template('index.html', name=user_data)
-    else:
-        return render_template('index.html', name="Name not Found")
-=======
 
     return render_template('index.html', name=user_data)
 
 
->>>>>>> 896bcb21297b996226ad9bc25d5dc596a1282a71
 
 
 # Route for registration
