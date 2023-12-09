@@ -53,3 +53,8 @@ body{
 .center-container {
     text-align: center;
 }
+
+h1 {
+    position: relative;
+    top: 5%;
+}

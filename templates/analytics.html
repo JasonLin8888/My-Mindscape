@@ -1,13 +1,15 @@
 {% extends "layout.html" %}
 
-{% block title %}Analytics{% endblock %}
+{% block title %}
+    Analytics
+{% endblock %}
 
 {% block main %}
     <h1>Your Analytics</h1>
     {% if not dates %}
         <p>No Mood Data</p>
     {% else %}
-        <canvas id="moodChart" width="400" height="200"></canvas>
+        <canvas id="moodChart" width="90%" height="auto"></canvas>
 
         <script>
             var ctx = document.getElementById('moodChart').getContext('2d');
@@ -19,7 +21,7 @@
             chartDates = chartDates.map(date => new Date(date));
 
             var chart = new Chart(ctx, {
-                type: 'line',
+                type: 'scatter',
                 data: {
                     labels: chartDates,
                     datasets: [{

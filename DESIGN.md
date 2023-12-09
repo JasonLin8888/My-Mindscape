@@ -1,76 +1,69 @@
-
-MyMindscape App Design
-
-Overview
-
-The MyMindscape app is designed to provide users with a platform to record their daily moments and track their moods over time. Users can customize their profiles, including uploading profile pictures, and visualize their mood analytics through various features.
-
-Technologies Used
-
-    Flask
-
-    This is a lightweight web framework for Python that was used to build the backend of the MyMindscape app. It handles routing, request handling, and integrates with other libraries.
-
-    CS50 Library
-
-    The CS50 library was used for database interactions instead of SQLAlchemy. It simplifies working with SQLite databases in a Flask application and was chosen for its simplicity and compatibility with the CS50 course.
-
-    Flask-Mail
-
-    Flask-Mail is a Flask extension for sending emails. It is used in the application to send periodic mood summaries to users.
-
-    Flask-Session
-
-    Flask-Session is an extension for managing user sessions in Flask applications. It is employed to keep track of user logins and ensure certain routes are accessible only to logged-in users.
+Design Document for Mindscape Project
 
 
-    Matplotlib
+Introduction
 
-    Matplotlib is a plotting library for Python. It is used to generate visualizations of mood analytics, providing users with insights into their mood trends over time.
+The Mindscape project is a web application built using Flask, a Python web framework, and several additional libraries to support functionality such as user authentication, email notifications, and data visualization. This design document provides an overview of the technical aspects of the project, discussing the key components, design decisions, and the rationale behind those decisions.
 
-    Bootstrap
+Technology Stack
 
-    Bootstrap, a front-end framework, is used for styling the web pages. It ensures a responsive and visually appealing user interface.
+Flask
+Flask was chosen as the web framework due to its simplicity, flexibility, and ease of integration with other libraries. The lightweight nature of Flask allows for a modular design, making it easy to add and modify features as needed.
 
-Features
+CS50 SQL
+CS50 SQL is used for database interaction. The project uses a SQLite database to store user information, moments, and mood records. SQL queries are executed using the CS50 library, simplifying database operations.
 
-    User Authentication
+Flask-Mail
+Flask-Mail is employed for sending email notifications. It integrates seamlessly with Flask, enabling the application to send periodic mood summaries to users.
 
-    Users can register, log in, and log out of the application. Authentication is handled securely, and passwords are hashed before storage.
+Flask-Session
+Flask-Session is utilized for handling user sessions. It stores user-specific data across requests, allowing for personalized experiences such as displaying the user's name and recorded moments.
 
-    Profile Customization
+Flask-Bootstrap
+Flask-Bootstrap is incorporated for easy integration of Bootstrap styles into the project. It simplifies the styling of HTML templates and ensures a consistent and visually appealing user interface.
 
-    Users have the option to customize their profiles by providing a name, email, and uploading a profile picture.
+Chart.js
+Chart.js is used for creating dynamic and interactive charts on the analytics page. It is a JavaScript library that allows for the visualization of mood data in a user-friendly and responsive manner.
 
-    Moment Recording
+ Key Components
 
-    Users can record their daily moments by entering a date and a description. These moments are stored in the database for future reference.
+ User Authentication
+The application employs a username-password authentication system. Passwords are securely hashed using the Werkzeug library, and user sessions are managed through Flask-Session.
 
-    Mood Tracking
+ Moment Recording
+Users can record moments by providing a date and a description. This information is stored in the SQLite database using CS50 SQL, allowing users to revisit and reflect on past experiences.
 
-    Users can log their daily moods, indicating their mood and intensity. The application visualizes mood trends over time using Matplotlib.
+Mood Tracking
+Users can record their daily mood and intensity levels. The data is stored in the database and can be visualized on the analytics page using Chart.js.
 
-    Periodic Email Summaries
+Email Notifications
+The application sends periodic mood summaries to users via email. This feature is implemented using Flask-Mail, providing users with a convenient overview of their mood trends.
 
-    Flask-Mail is utilized to send periodic mood summaries to users, providing them with insights into their weekly mood trends.
+ Analytics
+The analytics page utilizes Chart.js to create dynamic and interactive charts of mood data. Users can view their mood intensity over time, helping them identify patterns and trends.
 
-    Database Structure
+ Design Decisions
 
-    The CS50 library is used to interact with the SQLite database. The main tables include:
+1. Database Design: SQLite was chosen for its simplicity and ease of setup. The use of CS50 SQL simplifies database interactions without writing raw SQL queries, enhancing maintainability.
 
-    User Table: Stores user information such as user ID, name, username, hashed password, and email.
-    
-    Mood Table: Records daily moods, including user ID, mood type, intensity, and date.
+2. User Authentication: The application uses Flask-Session to manage user sessions, ensuring a seamless and secure user experience. Passwords are hashed using Werkzeug for added security.
 
-    Future Enhancements
+3. Email Notifications: Flask-Mail was selected for its integration with Flask and straightforward configuration. Email notifications provide users with valuable insights into their mood trends.
 
-    1.Advanced Analytics: Incorporate more sophisticated analytics tools or machine learning models to provide users with deeper insights into their mood patterns.
+4. **Visualization with Chart.js: Chart.js was chosen for data visualization due to its simplicity and interactivity. It allows for the creation of visually appealing charts on the analytics page.
 
-    2.User Settings: Expand user profile customization options, allowing users to update their information and preferences.
+5. **Styling with Flask-Bootstrap**: Flask-Bootstrap simplifies the integration of Bootstrap styles, ensuring a responsive and visually appealing user interface without extensive CSS coding.
 
-    3.Improved Frontend: Enhance the user interface with more interactive elements and a modern design.
+## Future Improvements
 
-Conclusion
+1. **User Interface Refinement**: Enhance the user interface with additional styling and responsiveness for a more polished and user-friendly experience.
 
-The MyMindscape app offers a user-friendly platform for individuals to reflect on their daily experiences and track their emotional well-being. The combination of Flask, CS50, and other libraries provides a robust foundation for future expansions and improvements.
+2. **Security Enhancements**: Implement additional security measures, such as CSRF protection, to further safeguard user data.
 
+3. **User Feedback**: Incorporate user feedback mechanisms to allow users to provide comments or suggestions for improvement.
+
+4. **Advanced Analytics**: Expand the analytics page to include more advanced data visualizations and insights into mood patterns.
+
+5. **Testing and Deployment**: Implement comprehensive testing and consider deploying the application to a production environment for real-world usage.
+
+In summary, the Mindscape project leverages Flask, CS50 SQL, and various libraries to provide users with a platform for recording moments, tracking mood, and gaining insights into their emotional well-being. The design decisions prioritize simplicity, security, and user experience, with potential for future enhancements and refinements.
