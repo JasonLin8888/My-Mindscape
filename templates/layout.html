@@ -65,14 +65,16 @@
         {% endif %}
 
         <!-- Content block that will be overridden by child pages -->
-        <main class = "container-fluid py-5 text-center">
-            {% block main %}{% endblock %}
-        </main>
+        <div class="content">
+            <main class = "container-fluid py-5 text-center">
+                {% block main %}{% endblock %}
+            </main>
 
-        <!-- Common footer or scripts can go here -->
-        <footer class="mb-5 small text-center text-muted">
-            <p>Brought to you by Ian and Jason!</p>
-        </footer>
+            <!-- Common footer or scripts can go here -->
+            <footer class="mb-5 small text-center text-muted">
+                <p>Brought to you by Ian and Jason!</p>
+            </footer>
+        </div>
 
     </body>
 
