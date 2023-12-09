@@ -215,7 +215,9 @@ def moment():
         return render_template('moment.html')
 
 
-app.route('/mood', methods=['GET', 'POST'])
+from flask import abort
+
+@app.route('/mood', methods=['GET', 'POST'])
 def record_mood():
     if request.method == 'POST':
         try:
@@ -226,7 +228,7 @@ def record_mood():
             # Retrieve user id and add current mood to the existing database using SQL
             db.execute("""
                 INSERT INTO mood (user_id, mood, intensity)
-                VALUES (?, ?, ?)
+                VALUES (?)
                 ON CONFLICT(user_id) DO UPDATE SET mood = EXCLUDED.mood, intensity = EXCLUDED.intensity
             """, (session['user_id'], selected_mood, intensity))
 
@@ -237,13 +239,14 @@ def record_mood():
             return redirect(url_for('home'))
 
         except Exception as e:
-            # Handle the exception
+            # Log the exception for debugging
             print(f"Error adding mood to the database: {e}")
-            return apology("Error adding mood to the database", 403)
+
+            # Return a generic apology message with a 500 status code
+            return apology("An error occurred while processing your request", 500)
     else:
         # Render the record mood page if it's a GET request
         return render_template('mood.html')
-
 
 # Route for sending periodic summaries
 @app.route('/send_periodic_summary', methods=['GET'])
