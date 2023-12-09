@@ -51,7 +51,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///college_experience_tracker.db
 
 # Route for the home page
 @app.route('/')
-@login_required  # Use the helper decorator to ensure the user is logged in
+@login_required  # Helper decorator to ensure the user is logged in
 def home():
     user_data = db.execute("SELECT name FROM User WHERE user_id = ?", session["user_id"])
     moment = db.execute("SELECT * FROM moments WHERE user_id = ?", session['user_id'])
@@ -118,7 +118,7 @@ def register():
         # Add user information to the users table after passing all checks
         db.execute("INSERT INTO User (name, username, password, email) VALUES (?, ?, ?, ?)",
                     name, username, generate_password_hash(password), email)
-        # db.commit()
+       
         return redirect(url_for("login"))
         
     else:
@@ -128,16 +128,17 @@ def register():
 
 # Route for the login page
 @app.route('/login', methods=['GET', 'POST'])
-@logout_required  # Use the helper decorator to ensure the user is not logged in
+@logout_required  
 def login():
     # Check if the user is already logged in
     if session.get('user_id'):
         # If the user is already logged in, redirect to the home page
         return redirect(url_for('home'))
+        
         # If the request method is POST, process the form data
 
     if request.method == 'POST':
-        # Process login form data here
+        # Process login form data 
         username = request.form.get('username')
         password = request.form.get('password')
         # Check if username and password were provided
@@ -292,34 +293,48 @@ def send_periodic_summary():
             sender=app.config['MAIL_DEFAULT_SENDER']
         )
         mail.send(msg)
-    # Assuming you have a function to get mood data for the past week or month
-     mood_data = get_mood_data_for_period(session['user_id'], 'week')  # You need to implement this function
+    # function to get mood data for the past week or month
+     mood_data = get_mood_data_for_period(session['user_id'], 'week') 
 
-    # Assuming you have a function to format mood data for display
-     formatted_summary = format_mood_summary(mood_data)  # You need to implement this function
+     #function to format mood data for display
+     formatted_summary = format_mood_summary(mood_data) 
 
-    # Assuming you have a function to send an email using Flask-Mail
-     send_email(session['user_email'], 'Weekly Mood Summary', formatted_summary)  # You need to implement this function
-
+    # Use function send_email to send an email using Flask-Mail
+     send_email(session['user_email'], 'Weekly Mood Summary', formatted_summary)  
      return "Periodic summary sent successfully!"
 
 
-# Route for analytics
 @app.route('/analytics')
 @login_required
 def analytics():
     try:
-        mood_data = db.execute("SELECT date, intensity FROM mood WHERE user_id = ?", (session['user_id'],))
+        # Retrieve mood data from the database
+        mood_data = db.execute("SELECT mood, intensity FROM mood WHERE user_id = ?", (session['user_id'],))
     except Exception as e:
         print(f"Error retrieving mood data: {e}")
         mood_data = []
 
-    # Process mood data to extract relevant information for analytics
-    dates = [entry['date'] for entry in mood_data]
-    daily_moods = [entry['intensity'] for entry in mood_data]
+    # Process mood data to calculate mood counts and average intensity
+    mood_counts = {}
+    total_intensity = 0
+    total_moods = 0
 
-    return render_template('analytics.html', dates=dates, daily_moods=daily_moods)
+    for entry in mood_data:
+        mood = entry['mood']
+        intensity = entry['intensity']
 
+        # Update mood counts
+        mood_counts[mood] = mood_counts.get(mood, 0) + 1
+
+        # Update total intensity
+        total_intensity += intensity
+        total_moods += 1
+
+    # Calculate average intensity
+    average_intensity = total_intensity / total_moods if total_moods > 0 else 0
+
+    # Pass the mood counts and average intensity to the template
+    return render_template('analytics.html', mood_counts=mood_counts, average_intensity=average_intensity)
 
 # Error handler for all exceptions
 @app.errorhandler(Exception)

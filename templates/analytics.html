@@ -1,60 +1,35 @@
 {% extends "layout.html" %}
 
-{% block title %}
-    Analytics
-{% endblock %}
+{% block title %}Analytics{% endblock %}
 
 {% block main %}
-    <h1>Your Analytics</h1>
-    {% if not dates %}
-        <p>No Mood Data</p>
-    {% else %}
-        <canvas id="moodChart" width="90%" height="auto"></canvas>
+    <div class="container">
+        <h1>Analytics</h1>
 
-        <script>
-            var ctx = document.getElementById('moodChart').getContext('2d');
-            var chartDates = {{ dates | tojson | safe | replace("'", "\'") }};
-            var chartData = {{ daily_moods | tojson | safe | replace("'", "\'") }};
+        <!-- Your analytics content goes here -->
+        <p>This is where you can display analytics content.</p>
 
-            
-            // Convert date strings to JavaScript Date objects
-            chartDates = chartDates.map(date => new Date(date));
+        <!-- Example: Display mood counts and average intensity -->
+        <h3>Mood Counts</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Mood</th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mood, count in mood_counts.items() %}
+                    <tr>
+                        <td>{{ mood }}</td>
+                        <td>{{ count }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-            var chart = new Chart(ctx, {
-                type: 'scatter',
-                data: {
-                    labels: chartDates,
-                    datasets: [{
-                        label: 'Mood Trends Over Time',
-                        data: chartData,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1,
-                        fill: false
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: {
-                            type: 'time', // Configure x-axis as time
-                            time: {
-                                unit: 'day', // x-axis unit
-                            },
-                            title: {
-                                display: true,
-                                text: 'Date',
-                            }
-                        },
-                        y: {
-                            min: 1,
-                            max: 10,
-                            title: {
-                                display: true,
-                                text: 'Mood',
-                            }
-                        }
-                    }
-                }
-            });
-        </script>
-    {% endif %}
+        <h3>Average Intensity</h3>
+        <p>{{ average_intensity }}</p>
+
+    </div>
 {% endblock %}

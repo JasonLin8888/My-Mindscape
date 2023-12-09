@@ -1,101 +1,99 @@
-MyMindScape https://youtu.be/mEDq3hHKarE
+MyMindscape Project
 
-MyMindScape is a web application that allows users to track their mood and record moments in a personal diary. This README provides a user's manual for the application.
+Introduction
 
-Table of Contents
+Welcome to Mindscape, a web application designed to help users track and reflect on their daily moments and moods. This documentation serves as a user's manual, providing clear instructions on how to compile, configure, and use the Mindscape project. Whether you're a new user looking to get started or a developer exploring the project structure, this guide will help you navigate through the application.
 
-- [Installation](#installation)
-- [Usage](#usage)
-- [Features](#features)
-- [Dependencies](#dependencies)
-- [Contributing](#contributing)
-- [License](#license)
+Getting Started
 
-Installation
+Prerequisites
 
-1. Clone the repository:
+- Ensure you have Python installed on your machine. If not, you can download it from [python.org](https://www.python.org/).
+- Install the required Python packages by running the following command in the project directory:
 
-   bash
-   git clone https://github.com/JasonLin8888/My-Mindscape
-   
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-2. Navigate to the project directory:
+ Configuration
 
-   bash
-   cd MyMindScape
-   
+1. Open the `config.py` file in the project directory.
 
-3. Install the required dependencies:
+2. Set your Gmail credentials for sending email notifications:
 
-   bash
-   pip install -r requirements.txt
- 
+    ```python
+    MAIL_USERNAME = 'YourGmail@gmail.com'  # replace with your Gmail email
+    MAIL_PASSWORD = 'YourGmailPassword'    # replace with your Gmail password
+    ```
 
-4. Set up the configuration file:
+3. Configure the database URI in the same file:
 
-   - Create a `.env` file in the project root.
-   - Add the following environment variables:
+    ```python
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///mindscape.db'
+    ```
 
-     plaintext
-     FLASK_APP=app.py
-     FLASK_ENV=development
-     
+Running the Application
 
-5. Initialize the database:
+1. In the terminal, navigate to the project directory.
 
-   bash
-   flask db init
-   flask db migrate
-   flask db upgrade
-   
+2. Run the following command to initialize the Flask application:
 
-Usage
+    ```bash
+    flask run
+    ```
 
-1. Run the application:
+3. Open your web browser and go to [http://127.0.0.1:5000/](http://127.0.0.1:5000/) to access the Mindscape application.
 
-   bash
-   flask run
-   
+ Usage
 
-2. Open your web browser and go to [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
+ Registering a New Account
 
-3. Register for a new account or log in if you already have one.
+1. Click on the "Register" link on the navigation bar.
 
-4. Explore the different features of MyMindScape, including recording moments, tracking mood, and viewing analytics.
+2. Fill in the registration form with your name, username, password, password confirmation, and email.
 
-Features
+3. Click the "Register" button to create a new account.
 
-- Record Moments: Document your thoughts and experiences by recording moments with descriptions and dates.
+ Logging In
 
-- Track Mood: Log your daily mood and intensity to keep track of your emotional well-being.
+1. Click on the "Login" link on the navigation bar.
 
-- Analytics:Visualize your mood trends over time with interactive charts.
+2. Enter your username and password.
 
-- Profile Picture: Customize your profile by uploading a profile picture.
+3. Click the "Login" button to access your account.
 
-Dependencies
+ Recording Moments
 
-- Flask: Web framework for Python
-- SQLite: Database engine
-- Flask-Mail: Email sending in Flask
-- Flask-Session: Extension for server-side session management
-- Flask-Migrate: Database migration with Flask
-- Matplotlib: Data visualization library
-- Bootstrap: Front-end framework
-- Chart.js: JavaScript charting library
+1. Once logged in, click on the "Moment" link on the navigation bar.
 
-Contributing
+2. Fill in the form with the date and description of your moment.
 
-If you would like to contribute to MyMindScape, please follow these steps:
+3. Click the "Record Moment" button to save the moment.
 
-1. Fork the repository.
-2. Create a new branch: `git checkout -b feature-name`
-3. Commit your changes: `git commit -m 'Add some feature'`
-4. Push to the branch: `git push origin feature-name`
-5. Submit a pull request.
+Tracking Mood
 
-License
+1. Click on the "Mood" link on the navigation bar.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+2. Select your mood, set the intensity, and choose the date.
 
+3. Click the "Record Mood" button to track your mood.
 
+ Viewing Analytics
+
+1. Click on the "Analytics" link on the navigation bar.
+
+2. Explore the interactive charts to gain insights into your mood trends over time.
+
+Logging Out
+
+1. To log out, click on the "Logout" link on the navigation bar.
+
+ Additional Information
+
+- The application sends periodic mood summaries to the registered email address. Ensure that the configured Gmail credentials are accurate for email functionality.
+
+- For any technical issues or errors, refer to the `logs` folder for detailed error logs.
+
+- If you encounter any problems, feel free to reach out to the project developer.
+
+Thank you for using MyMindscape! We hope this user's manual makes your experience with the application enjoyable and insightful.
