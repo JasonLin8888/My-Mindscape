@@ -1,11 +1,45 @@
-<!--Show analysis from data collected in mood.html over time -->
 {% extends "layout.html" %}
 
 {% block title %}
-    Mood Analytics
+    {{ title }}
 {% endblock %}
 
 {% block main %}
-    <h1>Mood Analytics</h1>
-    <img src="data:image/png;base64,{{ img_base64 }}" alt="Mood Trends Over Time">
+    <h1>{{ title }}</h1>
+
+    {% if apology %}
+        <p>{{ apology }}</p>
+    {% else %}
+        <canvas id="moodChart" width="400" height="200"></canvas>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            var ctx = document.getElementById('moodChart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: {{ dates | tojson | safe }},
+                    datasets: [{
+                        label: 'Mood Trends Over Time',
+                        data: {{ daily_moods | tojson | safe }},
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom'
+                        },
+                        y: {
+                            min: 1,
+                            max: 10
+                        }
+                    }
+                }
+            });
+        </script>
+    {% endif %}
 {% endblock %}

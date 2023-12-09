@@ -8,6 +8,7 @@ from flask_session import Session
 from datetime import datetime
 from io import BytesIO
 import os
+from flask_bootstrap import Bootstrap
 import matplotlib.pyplot as plt
 from validate_email_address import validate_email
 
@@ -15,6 +16,7 @@ import base64
 
 app = Flask(__name__)
 
+bootstrap = Bootstrap(app)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
@@ -59,10 +61,17 @@ def home():
             user_data = ", " + user_data[0]['name']
     else:
         user_data = "Name Not Found"
+<<<<<<< HEAD
+    if user_data:
+        return render_template('index.html', name=user_data)
+    else:
+        return render_template('index.html', name="Name not Found")
+=======
 
     return render_template('index.html', name=user_data)
 
 
+>>>>>>> 896bcb21297b996226ad9bc25d5dc596a1282a71
 
 
 # Route for registration
@@ -181,6 +190,7 @@ def logout():
 @app.route('/moment', methods=['GET', 'POST'])
 @login_required  # Use the helper decorator to ensure the user is logged in
 def moment():
+  
     if request.method == 'POST':
         try:
             # Process the form data
@@ -204,6 +214,7 @@ def moment():
             flash('Moment recorded successfully!')
 
             # Redirect to the home page after successful recording
+        
             return redirect(url_for('home'))
 
         except Exception as e:
@@ -218,8 +229,9 @@ def moment():
 
 # Define the route to  mood
 @app.route('/mood', methods=['GET', 'POST'])
-@login_required  # Ensure the user is logged in
-def mood():
+# @login_required  # Ensure the user is logged in
+def record_mood():
+   
     if request.method == 'POST':
         try:
             # Retrieve the mood and intensity values from the form submission
@@ -310,39 +322,26 @@ def send_periodic_summary():
      return "Periodic summary sent successfully!"
 
 
+# Route for analytics
 @app.route('/analytics')
 @login_required
 def analytics():
     try:
-        mood_data = db.execute("SELECT * FROM mood WHERE user_id = ?", (session['user_id'],))
+        mood_data = db.execute("SELECT date, intensity FROM mood WHERE user_id = ?", (session['user_id'],))
     except Exception as e:
-        # Handles the exception
         print(f"Error retrieving mood data: {e}")
         mood_data = []
-     
 
     # Process mood data to extract relevant information for analytics
-    dates = [entry.date for entry in mood_data]
-    daily_moods = [entry.selected_mood for entry in mood_data]
+    dates = [entry['date'] for entry in mood_data]
+    daily_moods = [entry['intensity'] for entry in mood_data]
 
-    # Create a line chart using Matplotlib
-    plt.plot(dates, daily_moods)
-    plt.xlabel('Date')
-    plt.ylabel('Daily Mood')
-    plt.title('Mood Trends Over Time')
-    plt.xticks(rotation=45)
+    if not dates or not daily_moods:
+        # No mood data available, show apology
+        apology = "You don't have any mood data yet. Log your mood to see analytics."
+        return render_template('analytics.html', title="Mood Analytics", apology=apology)
 
-    # Save the plot to a BytesIO object
-    img = BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plt.close()
-
-    # Convert the image to base64 for embedding in HTML
-    img_base64 = base64.b64encode(img.getvalue()).decode()
-
-    # Pass the base64-encoded image to the template
-    return render_template('analytics.html', img_base64=img_base64)
+    return render_template('analytics.html', title="Mood Analytics", dates=dates, daily_moods=daily_moods)
 
 
 # Error handler for all exceptions
