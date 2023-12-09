@@ -9,6 +9,10 @@
 {% block main %}
     <!-- Login Form -->
     <form action="/login" method="post">
+        <!-- Our logo -->
+        <div class="image">
+            <img src="/static/AppLogo.jpeg" alt="MyMindscape Logo, reads MyMindscape and then underneath reads Your Moments, Mood, and More">
+        </div>
         <!-- Input for username -->
         <div class="mb-3">
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Username" type="text" required>
@@ -19,5 +23,9 @@
         </div>
         <!-- Button to submit the form -->
         <button class="btn btn-primary btn-block" type="submit">Log In</button>
+        <!-- Button to go to register -->
+        <div class="mb-3">
+            <p>Or <a href="/register">Register Here</a></p>
+        </div>
     </form>
 {% endblock %}

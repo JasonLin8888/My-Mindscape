@@ -53,15 +53,25 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///college_experience_tracker.db
 @app.route('/')
 @login_required  # Use the helper decorator to ensure the user is logged in
 def home():
-    user_data = db.execute("SELECT name FROM User WHERE user_id = ? ", session["user_id"])
+    user_data = db.execute("SELECT name FROM User WHERE user_id = ?", session["user_id"])
     if user_data:
-        user_data = user_data[0]
+        if user_data == [{'name': ''}]:
+            user_data = user_data[0]['name']
+        else:
+            user_data = ", " + user_data[0]['name']
     else:
         user_data = "Name Not Found"
+<<<<<<< HEAD
     if user_data:
         return render_template('index.html', name=user_data)
     else:
         return render_template('index.html', name="Name not Found")
+=======
+
+    return render_template('index.html', name=user_data)
+
+
+>>>>>>> 896bcb21297b996226ad9bc25d5dc596a1282a71
 
 
 # Route for registration
@@ -187,6 +197,9 @@ def moment():
             date_str = request.form['date']
             description = request.form['description']
 
+            if not date_str:
+                return apology("Missing Date")
+
             # Validate and convert the date string to a datetime object
             date = datetime.strptime(date_str, '%Y-%m-%d')
 
@@ -198,7 +211,7 @@ def moment():
             db.session.commit()
 
             # Flash a success message
-            flash('Moment recorded successfully!', 'success')
+            flash('Moment recorded successfully!')
 
             # Redirect to the home page after successful recording
         
@@ -206,7 +219,7 @@ def moment():
 
         except Exception as e:
             # Handle validation errors or database issues
-            flash(f'Error recording moment: {str(e)}', 'danger')
+            flash(f'Error recording moment: {str(e)}')
             return redirect(url_for('record_moment'))
 
     else:
