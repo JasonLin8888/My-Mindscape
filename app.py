@@ -187,12 +187,10 @@ def moment():
             # Process the form data
             date_str = request.form['date']
             description = request.form['description']
-            print("Descrip:", description)
 
             # Validate and convert the date string to a datetime object
             date = datetime.strptime(date_str, '%Y-%m-%d')
-            print("Parsed Date:", date)
-            
+
             # Create a new entry object using the form data
             db.execute("INSERT INTO moments (user_id, date, description) VALUES (:user_id, :date, :description)", user_id=session['user_id'], date=date, description=description)
 
@@ -220,9 +218,13 @@ def record_mood():
             # Retrieve the mood and intensity values from the form submission
             selected_mood = request.form['mood']
             intensity = int(request.form['intensity'])
+            date_str = request.form['date']
+
+            # Validate and convert the date string to a datetime object
+            date = datetime.strptime(date_str, '%Y-%m-%d')
 
             # Retrieve user id and add current mood to the existing database using SQL
-            db.execute("INSERT INTO mood (user_id, mood, intensity) VALUES (:user_id, :mood, :intensity)", user_id=session['user_id'], mood=selected_mood, intensity=intensity)
+            db.execute("INSERT INTO mood (user_id, mood, intensity, date) VALUES (:user_id, :mood, :intensity, :date)", user_id=session['user_id'], mood=selected_mood, intensity=intensity, date=date)
 
             # Redirect to the home page 
             return redirect(url_for('home'))
@@ -317,7 +319,6 @@ def analytics():
     daily_moods = [entry['intensity'] for entry in mood_data]
 
     return render_template('analytics.html', dates=dates, daily_moods=daily_moods)
-
 
 
 # Error handler for all exceptions

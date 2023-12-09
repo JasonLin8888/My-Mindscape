@@ -6,14 +6,11 @@
 
 {% block main %}
     <h1>Your Analytics</h1>
-
-    {% if apology %}
-        <p>{{ apology }}</p>
-    {% else %}
+    {% if dates %}
         <canvas id="moodChart" width="400" height="200"></canvas>
 
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
+            // Your Chart.js script here
             var ctx = document.getElementById('moodChart').getContext('2d');
             var chart = new Chart(ctx, {
                 type: 'line',
@@ -30,16 +27,28 @@
                 options: {
                     scales: {
                         x: {
-                            type: 'linear',
-                            position: 'bottom'
+                            type: 'time', // Configure x-axis as time
+                            time: {
+                                unit: 'day', // Adjust this based on your data density
+                            },
+                            title: {
+                                display: true,
+                                text: 'Date',
+                            }
                         },
                         y: {
                             min: 1,
                             max: 10
+                            title: {
+                                display: true,
+                                text: 'Mood',
+                            }
                         }
                     }
                 }
             });
         </script>
+    {% else %}
+        <p>No Current Data For Moods</p>
     {% endif %}
 {% endblock %}
