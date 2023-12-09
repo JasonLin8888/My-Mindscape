@@ -192,11 +192,11 @@ def moment():
             date = datetime.strptime(date_str, '%Y-%m-%d')
 
             # Create a new entry object using the form data
-            new_entry = mood(user_id=session['user_id'], date=date, description=description)
+            db.execute("""
+            INSERT INTO moments (user_id, date, description)
+            VALUES (?, ?, ?)
+            """, (session['user_id'], date, description))
 
-            # Add the new entry to the database
-            db.session.add(new_entry)
-            db.session.commit()
 
             # Flash a success message
             flash('Moment recorded successfully!', 'success')
@@ -204,6 +204,7 @@ def moment():
             # Redirect to the home page after successful recording
         
             return redirect(url_for('home'))
+
 
         except Exception as e:
             # Handle validation errors or database issues
