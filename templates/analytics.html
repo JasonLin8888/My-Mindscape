@@ -6,6 +6,17 @@
 
 {% block main %}
     <h1>Your Analytics</h1>
+    <!-- Display Mood History -->
+    <h2>Recorded Moments</h2>
+    <ul>
+        {% for entry in mood %}
+            <li>
+                {{ entry.date }} - <br>
+                Mood: {{ entry.mood }} <br>
+                Intensity: {{entry.intensity }}
+            </li>
+        {% endfor %}
+    </ul>
     {% if not dates %}
         <p>No Mood Data</p>
     {% else %}

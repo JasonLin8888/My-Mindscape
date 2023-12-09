@@ -317,8 +317,9 @@ def analytics():
     # Process mood data to extract relevant information for analytics
     dates = [entry['date'] for entry in mood_data]
     daily_moods = [entry['intensity'] for entry in mood_data]
+    mood = db.execute("SELECT * FROM mood WHERE user_id = ?", session['user_id'])
 
-    return render_template('analytics.html', dates=dates, daily_moods=daily_moods)
+    return render_template('analytics.html', dates=dates, daily_moods=daily_moods, mood=mood)
 
 
 # Error handler for all exceptions
