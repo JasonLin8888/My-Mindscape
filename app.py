@@ -53,18 +53,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///college_experience_tracker.db
 @app.route('/')
 @login_required  # Use the helper decorator to ensure the user is logged in
 def home():
-    user_data = db.execute("SELECT name FROM User WHERE user_id = ?", session["user_id"])
+    user_data = db.execute("SELECT name FROM User WHERE user_id = ? ", session["user_id"])
     if user_data:
-        if user_data == [{'name': ''}]:
-            user_data = user_data[0]['name']
-        else:
-            user_data = ", " + user_data[0]['name']
+        user_data = user_data[0]
     else:
         user_data = "Name Not Found"
-
-    return render_template('index.html', name=user_data)
-
-
+    if user_data:
+        return render_template('index.html', name=user_data)
+    else:
+        return render_template('index.html', name="Name not Found")
 
 
 # Route for registration
@@ -190,9 +187,6 @@ def moment():
             date_str = request.form['date']
             description = request.form['description']
 
-            if not date_str:
-                return apology("Missing Date")
-
             # Validate and convert the date string to a datetime object
             date = datetime.strptime(date_str, '%Y-%m-%d')
 
@@ -204,7 +198,7 @@ def moment():
             db.session.commit()
 
             # Flash a success message
-            flash('Moment recorded successfully!')
+            flash('Moment recorded successfully!', 'success')
 
             # Redirect to the home page after successful recording
         
@@ -212,7 +206,7 @@ def moment():
 
         except Exception as e:
             # Handle validation errors or database issues
-            flash(f'Error recording moment: {str(e)}')
+            flash(f'Error recording moment: {str(e)}', 'danger')
             return redirect(url_for('record_moment'))
 
     else:
@@ -329,12 +323,8 @@ def analytics():
     dates = [entry['date'] for entry in mood_data]
     daily_moods = [entry['intensity'] for entry in mood_data]
 
-    if not dates or not daily_moods:
-        # No mood data available, show apology
-        apology = "You don't have any mood data yet. Log your mood to see analytics."
-        return render_template('analytics.html', title="Mood Analytics", apology=apology)
+    return render_template('analytics.html', dates=dates, daily_moods=daily_moods)
 
-    return render_template('analytics.html', title="Mood Analytics", dates=dates, daily_moods=daily_moods)
 
 
 # Error handler for all exceptions
