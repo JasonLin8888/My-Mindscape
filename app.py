@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session
 from helpers import login_required, logout_required, apology
 from cs50 import SQL
 from datetime import datetime, timedelta
@@ -54,6 +54,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///college_experience_tracker.db
 @login_required  # Use the helper decorator to ensure the user is logged in
 def home():
     user_data = db.execute("SELECT name FROM User WHERE user_id = ?", session["user_id"])
+    moment = db.execute("SELECT * FROM moments WHERE user_id = ?", session['user_id'])
     if user_data:
         if user_data == [{'name': ''}]:
             user_data = user_data[0]['name']
@@ -61,7 +62,7 @@ def home():
             user_data = ", " + user_data[0]['name']
     else:
         user_data = "Name Not Found"
-    return render_template('index.html', name=user_data)
+    return render_template('index.html', name=user_data, moment=moment)
 
     
 
@@ -80,7 +81,7 @@ def register():
         confirmation = request.form.get("confirmation")
         email = request.form.get("email")
 
-        # If username is missing, flash an apology message
+        # If username is missing, give an apology message
         if not username:
             return apology("Missing Username", 400)
         elif not password:
@@ -110,7 +111,7 @@ def register():
         # Check whether there are similar usernames in the database
         existing_user = db.execute("SELECT * FROM User WHERE username = ?", username)
 
-        # If the username already exists, flash an apology message
+        # If the username already exists, give an apology message
         if existing_user:
             return apology("Username already exists", 400)
 
@@ -181,25 +182,19 @@ def logout():
 @app.route('/moment', methods=['GET', 'POST'])
 @login_required  # Use the helper decorator to ensure the user is logged in
 def moment():
-  
     if request.method == 'POST':
         try:
             # Process the form data
             date_str = request.form['date']
             description = request.form['description']
+            print("Descrip:", description)
 
             # Validate and convert the date string to a datetime object
             date = datetime.strptime(date_str, '%Y-%m-%d')
-
+            print("Parsed Date:", date)
+            
             # Create a new entry object using the form data
-            db.execute("""
-            INSERT INTO moments (user_id, date, description)
-            VALUES (?, ?, ?)
-            """, (session['user_id'], date, description))
-
-
-            # Flash a success message
-            flash('Moment recorded successfully!', 'success')
+            db.execute("INSERT INTO moments (user_id, date, description) VALUES (:user_id, :date, :description)", user_id=session['user_id'], date=date, description=description)
 
             # Redirect to the home page after successful recording
         
@@ -208,7 +203,7 @@ def moment():
 
         except Exception as e:
             # Handle validation errors or database issues
-            flash(f'Error recording moment: {str(e)}', 'danger')
+            print(f'Error recording moment: {str(e)}')
             return redirect(url_for('record_moment'))
 
     else:
@@ -227,14 +222,7 @@ def record_mood():
             intensity = int(request.form['intensity'])
 
             # Retrieve user id and add current mood to the existing database using SQL
-            db.execute("""
-                INSERT INTO mood (user_id, mood, intensity)
-                VALUES (?)
-                ON CONFLICT(user_id) DO UPDATE SET mood = EXCLUDED.mood, intensity = EXCLUDED.intensity
-            """, (session['user_id'], selected_mood, intensity))
-
-            # Commit changes to the database
-            db.commit()
+            db.execute("INSERT INTO mood (user_id, mood, intensity) VALUES (:user_id, :mood, :intensity)", user_id=session['user_id'], mood=selected_mood, intensity=intensity)
 
             # Redirect to the home page 
             return redirect(url_for('home'))

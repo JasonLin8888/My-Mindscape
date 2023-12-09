@@ -24,12 +24,12 @@
                 </div>
 
                 <!-- Display Mood History -->
-                <h2>Mood History</h2>
+                <h2>Recorded Moments</h2>
                 <ul>
-                    {% for entry in mood_history %}
+                    {% for entry in moment %}
                         <li>
-                            {{ entry.date }} - {{ entry.description }} ({{ entry.daily_mood }})<br>
-                            Reflection: {{ entry.reflection }}
+                            {{ entry.date }} - <br>
+                            Description: {{ entry.description }}
                         </li>
                     {% endfor %}
                 </ul>

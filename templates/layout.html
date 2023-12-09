@@ -54,16 +54,6 @@
             </div>
         </nav>
 
-        <!-- Place to display flashed messages -->
-        {% if get_flashed_messages() %}
-            <header>
-                <div class="alert alert-primary mb-0 text-center" role="alert">
-                    {{ message[0] }}
-                    {{ get_flashed_messages() | join(" ") }}
-                </div>
-            </header>
-        {% endif %}
-
         <!-- Content block that will be overridden by child pages -->
         <div class="content">
             <main class = "container-fluid py-5 text-center">
