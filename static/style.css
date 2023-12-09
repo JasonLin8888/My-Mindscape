@@ -1,10 +1,26 @@
-<<<<<<< HEAD
-
-
-=======
 .navbar-brand{
     font-size: larger;
     font-weight: bold;
     color: #1a244d;
 }
->>>>>>> a7227cf30941abc2f2eac60deded670ddd6d6113
+
+body{
+    background: linear-gradient(to bottom, #ffcc57, #ffffff);
+    background-size: cover;
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    flex-direction: column; /* Align items from top to bottom */
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    color:#1a244d;
+}
+
+.navbar{
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+.navbar-nav a:hover{
+    background: #ffffff;
+}

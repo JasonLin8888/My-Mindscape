@@ -187,7 +187,9 @@ def moment():
             date_str = request.form['date']
             description = request.form['description']
 
-            
+            if not date_str:
+                return apology("Missing Date")
+
             # Validate and convert the date string to a datetime object
             date = datetime.strptime(date_str, '%Y-%m-%d')
 
@@ -206,7 +208,7 @@ def moment():
 
         except Exception as e:
             # Handle validation errors or database issues
-            flash(f'Error recording moment: {str(e)}', 'danger')
+            flash(f'Error recording moment: {str(e)}')
             return redirect(url_for('record_moment'))
 
     else:
