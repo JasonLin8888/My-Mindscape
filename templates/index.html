@@ -11,9 +11,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h1>Welcome to Your Dashboard</h1>
-                <p>Hello{{ name }}!</p>
-                <p>This is your personalized dashboard.</p>
+                <p class="greeting-text">{{ greeting }}, Welcome to Your Personalized Dashboard {{ name }}!</p>
 
                 <!-- Buttons to redirect to /mood and /analytics -->
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start">
@@ -24,14 +22,16 @@
                 </div>
 
                 <!-- Display Mood History -->
-                <h2>Recorded Moments</h2>
+               <!-- Display Mood History -->
+                <h2>Your Previously Recorded Moments</h2>
                 <ul>
                     {% for entry in moment %}
                         <li>
-                            {{ entry.date }} - <br>
+                            Date Recorded: {{ entry.date }}<br>
                             Description: {{ entry.description }}
-                        </li>
                     {% endfor %}
+                </ul>
+
                 </ul>
             </div>
         </div>

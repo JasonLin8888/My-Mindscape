@@ -11,8 +11,8 @@ import os
 from flask_bootstrap import Bootstrap
 import matplotlib.pyplot as plt
 from validate_email_address import validate_email
+import logging
 
-import base64
 
 app = Flask(__name__)
 
@@ -48,6 +48,15 @@ app.config['MAIL_PASSWORD'] = 'Copyright@Ian&Jason'  # your email password
 app.config['MAIL_DEFAULT_SENDER'] = 'MyMindScape@gmail.com'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///college_experience_tracker.db'
 
+def get_time_of_day():
+    current_hour = datetime.now().hour
+
+    if 5 <= current_hour < 12:
+        return "Good Morning"
+    elif 12 <= current_hour < 18:
+        return "Good Afternoon"
+    else:
+        return "Good Evening"
 
 # Route for the home page
 @app.route('/')
@@ -55,6 +64,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///college_experience_tracker.db
 def home():
     user_data = db.execute("SELECT name FROM User WHERE user_id = ?", session["user_id"])
     moment = db.execute("SELECT * FROM moments WHERE user_id = ?", session['user_id'])
+
+    # Get the time of day greeting
+    greeting = get_time_of_day()
+
     if user_data:
         if user_data == [{'name': ''}]:
             user_data = user_data[0]['name']
@@ -62,7 +75,8 @@ def home():
             user_data = ", " + user_data[0]['name']
     else:
         user_data = "Name Not Found"
-    return render_template('index.html', name=user_data, moment=moment)
+
+    return render_template('index.html', greeting=greeting, name=user_data, moment=moment)
 
     
 
@@ -304,6 +318,7 @@ def send_periodic_summary():
      return "Periodic summary sent successfully!"
 
 
+
 @app.route('/analytics')
 @login_required
 def analytics():
@@ -333,8 +348,12 @@ def analytics():
     # Calculate average intensity
     average_intensity = total_intensity / total_moods if total_moods > 0 else 0
 
-    # Pass the mood counts and average intensity to the template
-    return render_template('analytics.html', mood_counts=mood_counts, average_intensity=average_intensity)
+    # Retrieve user data for displaying the name
+    user_data = db.execute("SELECT name FROM User WHERE user_id = ?", session["user_id"])
+    name = user_data[0]['name'] if user_data and user_data[0]['name'] else "Name Not Found"
+
+    # Pass the mood counts, average intensity, and user name to the template
+    return render_template('analytics.html', mood_counts=mood_counts, average_intensity=average_intensity, name=name)
 
 # Error handler for all exceptions
 @app.errorhandler(Exception)

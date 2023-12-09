@@ -79,3 +79,7 @@ th, td {
 th {
     background-color: #f2f2f2;
 }
+
+.greeting-text {
+    font-size: 1.5em; 
+}
