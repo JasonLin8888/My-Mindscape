@@ -314,6 +314,7 @@ def analytics():
         print(f"Error retrieving mood data: {e}")
         mood_data = []
 
+<<<<<<< HEAD
     # Process mood data to calculate mood counts and average intensity
     mood_counts = {}
     total_intensity = 0
@@ -322,6 +323,14 @@ def analytics():
     for entry in mood_data:
         mood = entry['mood']
         intensity = entry['intensity']
+=======
+    # Process mood data to extract relevant information for analytics
+    dates = [entry['date'] for entry in mood_data]
+    daily_moods = [entry['intensity'] for entry in mood_data]
+    mood = db.execute("SELECT * FROM mood WHERE user_id = ?", session['user_id'])
+
+    return render_template('analytics.html', dates=dates, daily_moods=daily_moods, mood=mood)
+>>>>>>> d5ea60eef2fec95f64cd99597db475109a9f2650
 
         # Update mood counts
         mood_counts[mood] = mood_counts.get(mood, 0) + 1
