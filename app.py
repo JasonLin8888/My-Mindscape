@@ -214,11 +214,8 @@ def moment():
         return render_template('moment.html')
 
 
-# Define the route to  mood
-@app.route('/mood', methods=['GET', 'POST'])
-# @login_required  # Ensure the user is logged in
+app.route('/mood', methods=['GET', 'POST'])
 def record_mood():
-   
     if request.method == 'POST':
         try:
             # Retrieve the mood and intensity values from the form submission
@@ -226,8 +223,11 @@ def record_mood():
             intensity = int(request.form['intensity'])
 
             # Retrieve user id and add current mood to the existing database using SQL
-            db.execute("INSERT INTO mood (user_id, mood, intensity) VALUES (?, ?, ?)",
-                    (session['user_id'], selected_mood, intensity))
+            db.execute("""
+                INSERT INTO mood (user_id, mood, intensity)
+                VALUES (?, ?, ?)
+                ON CONFLICT(user_id) DO UPDATE SET mood = EXCLUDED.mood, intensity = EXCLUDED.intensity
+            """, (session['user_id'], selected_mood, intensity))
 
             # Commit changes to the database
             db.commit()
@@ -240,7 +240,7 @@ def record_mood():
             print(f"Error adding mood to the database: {e}")
             return apology("Error adding mood to the database", 403)
     else:
-        # Render the record moment page if it's a GET request
+        # Render the record mood page if it's a GET request
         return render_template('mood.html')
 
 
